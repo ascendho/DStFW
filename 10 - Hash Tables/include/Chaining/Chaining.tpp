@@ -2,16 +2,16 @@
 
 template<typename K, typename V>
 void HashTableInsert(HashTable<K, V> &ht, const K &key, const V &value) {
-    size_t hash_value = HashFunction(key, ht.size);
+    size_t hash_value = HashFunction(key, ht.getSize());
 
     // 如果该位置元素为空，则新建一个链表
-    if (ht.bins[hash_value] == nullptr) {
-        ht.bins[hash_value] = new ListNode<K, V>(key, value);
+    if (ht.getBins()[hash_value] == nullptr) {
+        ht.getBins()[hash_value] = new ListNode<K, V>(key, value);
         return;
     }
 
     // 检查此 key 是否已存在于哈希表中
-    auto current = ht.bins[hash_value];
+    auto current = ht.getBins()[hash_value];
 
     while (current->key != key && current->next != nullptr)
         current = current->next;
@@ -26,11 +26,11 @@ void HashTableInsert(HashTable<K, V> &ht, const K &key, const V &value) {
 
 template<typename K, typename V>
 ListNode<K, V> *HashTableLookup(const HashTable<K, V> &ht, const K &key) {
-    size_t hash_value = HashFunction(key, ht.size);
-    if (ht.bins[hash_value] == nullptr)
+    size_t hash_value = HashFunction(key, ht.getSize());
+    if (ht.getBins()[hash_value] == nullptr)
         return nullptr;
 
-    auto current = ht.bins[hash_value];
+    auto current = ht.getBins()[hash_value];
     while (current->key != key && current->next != nullptr)
         current = current->next;
 
@@ -42,12 +42,12 @@ ListNode<K, V> *HashTableLookup(const HashTable<K, V> &ht, const K &key) {
 
 template<typename K, typename V>
 ListNode<K, V> *HashTableRemove(HashTable<K, V> &ht, const K &key) {
-    size_t hash_value = HashFunction(key, ht.size);
-    if (ht.bins[hash_value] == nullptr)
+    size_t hash_value = HashFunction(key, ht.getSize());
+    if (ht.getBins()[hash_value] == nullptr)
         return nullptr;
 
     // auto 自动推导类型
-    auto current = ht.bins[hash_value];
+    auto current = ht.getBins()[hash_value];
     // 声明一个同 current 类型的指针
     decltype(current) last = nullptr;
 
@@ -60,7 +60,7 @@ ListNode<K, V> *HashTableRemove(HashTable<K, V> &ht, const K &key) {
         if (last != nullptr)
             last->next = current->next;
         else
-            ht.bins[hash_value] = current->next;
+            ht.getBins()[hash_value] = current->next;
 
         return current;
     }

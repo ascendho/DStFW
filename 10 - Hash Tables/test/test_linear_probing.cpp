@@ -29,12 +29,12 @@ TEST_F(LinearProbingTest, BasicInsertAndLookup) {
     // 测试插入和查找
     EXPECT_TRUE(HashTableInsert(ht, std::string("apple"), 1));
     EXPECT_EQ(HashTableLookup(ht, std::string("apple")).value(), 1);
-    EXPECT_EQ(ht.num_keys, 1);
+    EXPECT_EQ(ht.getNumKeys(), 1);
     
     // 测试插入多个元素
     EXPECT_TRUE(HashTableInsert(ht, std::string("banana"), 2));
     EXPECT_TRUE(HashTableInsert(ht, std::string("cherry"), 3));
-    EXPECT_EQ(ht.num_keys, 3);
+    EXPECT_EQ(ht.getNumKeys(), 3);
     
     // 验证所有元素都能正确查找
     EXPECT_EQ(HashTableLookup(ht, std::string("apple")).value(), 1);
@@ -48,12 +48,12 @@ TEST_F(LinearProbingTest, UpdateExistingKey) {
     // 插入初始值
     EXPECT_TRUE(HashTableInsert(ht, std::string("key1"), 100));
     EXPECT_EQ(HashTableLookup(ht, std::string("key1")).value(), 100);
-    EXPECT_EQ(ht.num_keys, 1);
+    EXPECT_EQ(ht.getNumKeys(), 1);
     
     // 更新相同键的值
     EXPECT_TRUE(HashTableInsert(ht, std::string("key1"), 200));
     EXPECT_EQ(HashTableLookup(ht, std::string("key1")).value(), 200);
-    EXPECT_EQ(ht.num_keys, 1); // 键数量不应增加
+    EXPECT_EQ(ht.getNumKeys(), 1); // 键数量不应增加
 }
 
 TEST_F(LinearProbingTest, LookupNonExistentKey) {
@@ -85,7 +85,7 @@ TEST_F(LinearProbingTest, CollisionHandling) {
     EXPECT_EQ(HashTableLookup(ht, 0).value(), std::string("zero"));
     EXPECT_EQ(HashTableLookup(ht, 3).value(), std::string("three"));
     EXPECT_EQ(HashTableLookup(ht, 6).value(), std::string("six"));
-    EXPECT_EQ(ht.num_keys, 3);
+    EXPECT_EQ(ht.getNumKeys(), 3);
 }
 
 TEST_F(LinearProbingTest, LinearProbingSequence) {
@@ -115,14 +115,14 @@ TEST_F(LinearProbingTest, FullTableHandling) {
     EXPECT_TRUE(HashTableInsert(ht, 1, std::string("one")));
     EXPECT_TRUE(HashTableInsert(ht, 2, std::string("two")));
     EXPECT_TRUE(HashTableInsert(ht, 3, std::string("three")));
-    EXPECT_EQ(ht.num_keys, 3);
+    EXPECT_EQ(ht.getNumKeys(), 3);
     
     // 尝试插入到已满的表中（应该失败或找到可更新的位置）
     // 根据实现，这可能成功（如果有相同key）或失败（如果表真的满了）
     bool result = HashTableInsert(ht, 4, std::string("four"));
     if (!result) {
         // 如果插入失败，验证表确实满了
-        EXPECT_EQ(ht.num_keys, 3);
+        EXPECT_EQ(ht.getNumKeys(), 3);
     }
 }
 
@@ -179,7 +179,7 @@ TEST_F(LinearProbingTest, StressTest) {
     for (int i = 0; i < 50; ++i) {
         EXPECT_TRUE(HashTableInsert(ht, i, i * 2));
     }
-    EXPECT_EQ(ht.num_keys, 50);
+    EXPECT_EQ(ht.getNumKeys(), 50);
     
     // 验证所有元素
     for (int i = 0; i < 50; ++i) {
@@ -190,7 +190,7 @@ TEST_F(LinearProbingTest, StressTest) {
     for (int i = 0; i < 25; ++i) {
         EXPECT_TRUE(HashTableInsert(ht, i, i * 3));
     }
-    EXPECT_EQ(ht.num_keys, 50); // 数量不应改变
+    EXPECT_EQ(ht.getNumKeys(), 50); // 数量不应改变
     
     // 验证更新的元素
     for (int i = 0; i < 25; ++i) {

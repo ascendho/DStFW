@@ -17,10 +17,11 @@ struct ListNode {
 
 template<typename K, typename V>
 class HashTable {
-public:
+private:
     size_t size;
     std::vector<ListNode<K, V> *> bins;
 
+public:
     explicit HashTable(size_t table_size) : size(table_size), bins(table_size, nullptr) {
     }
 
@@ -38,5 +39,18 @@ public:
                 delete temp;
             }
         }
+    }
+
+    // Getter 方法
+    size_t getSize() const {
+        return size;
+    }
+
+    std::vector<ListNode<K, V> *>& getBins() {
+        return bins;
+    }
+
+    const std::vector<ListNode<K, V> *>& getBins() const {
+        return bins;
     }
 };

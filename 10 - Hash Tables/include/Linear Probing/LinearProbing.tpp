@@ -2,29 +2,29 @@
 
 template<typename K, typename V>
 bool HashTableInsert(HashTable<K, V> &ht, const K &key, const V &value) {
-    size_t index = HashFunction(key, ht.size);
+    size_t index = HashFunction(key, ht.getSize());
     size_t count = 0;
 
-    auto current = ht.bins[index];
+    auto current = ht.getBins()[index];
 
-    while (current != nullptr && current->key != key && count != ht.size) {
+    while (current != nullptr && current->key != key && count != ht.getSize()) {
         index = index + 1;
 
-        if (index >= ht.size)
+        if (index >= ht.getSize())
             index = 0;
 
-        current = ht.bins[index];
+        current = ht.getBins()[index];
         count = count + 1;
     }
 
-    if (count == ht.size)
+    if (count == ht.getSize())
         return false;
 
     if (current == nullptr) {
-        ht.bins[index] = new HashTableEntry<K, V>(key, value);
-        ht.num_keys = ht.num_keys + 1;
+        ht.getBins()[index] = new HashTableEntry<K, V>(key, value);
+        ht.incrementNumKeys();
     } else {
-        ht.bins[index]->value = value;
+        ht.getBins()[index]->value = value;
     }
 
     return true;
@@ -32,15 +32,15 @@ bool HashTableInsert(HashTable<K, V> &ht, const K &key, const V &value) {
 
 template<typename K, typename V>
 std::optional<V> HashTableLookup(const HashTable<K, V> &ht, const K &key) {
-    size_t index = HashFunction(key, ht.size);
+    size_t index = HashFunction(key, ht.getSize());
     size_t count = 0;
 
-    auto current = ht.bins[index];
-    while (current != nullptr && current->key != key && count != ht.size) {
+    auto current = ht.getBins()[index];
+    while (current != nullptr && current->key != key && count != ht.getSize()) {
         index = index + 1;
-        if (index >= ht.size)
+        if (index >= ht.getSize())
             index = 0;
-        current = ht.bins[index];
+        current = ht.getBins()[index];
         count = count + 1;
     }
 
