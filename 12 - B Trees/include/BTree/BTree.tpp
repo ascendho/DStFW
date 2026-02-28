@@ -61,7 +61,7 @@ bool BTreeNodeIsOverFull(BTreeNode<KeyType>* node) {
 }
 
 // ── BTreeNodeSplit ───────────────────────────────────────────────────────────
-// Splits node->children[child_index] (old_child) into two nodes.
+// 将 node->children[child_index]（old_child）分割为两个节点。
 // ❶ Identify old_child; allocate new_child with same leaf status.
 // ❷ split_index = floor(old_child.size / 2); split_key = keys[split_index].
 // ❸ Copy the upper half of old_child into new_child.
@@ -170,8 +170,8 @@ bool BTreeNodeIsUnderFull(BTreeNode<KeyType>* node) {
 }
 
 // ── BTreeNodeMerge ───────────────────────────────────────────────────────────
-// Merges node->children[index+1] into node->children[index], using
-// node->keys[index] as the separating key.
+// 将 node->children[index+1] 合并到 node->children[index] 中，
+// 使用 node->keys[index] 作为分隔键。
 // ❶ Retrieve childL and childR.
 // ❷ Append parent separating key and childR's first child pointer to childL.
 // ❸ Copy all of childR's keys/children into childL.
@@ -212,12 +212,12 @@ void BTreeNodeMerge(BTreeNode<KeyType>* node, int index) {
     node->children[i + 1] = nullptr;
     node->size             = node->size - 1;
 
-    // Free the now-empty right child
+    // 释放已清空的右子节点
     delete childR;
 }
 
 // ── BTreeNodeTransferLeft ───────────────────────────────────────────────────
-// Transfer one key from childR to childL via the parent separator at index.
+// 通过父节点在 index 处的分隔键，从右子节点向左子节点转移一个键。
 // ❶ Retrieve children and middle_key.
 // ❷ Replace parent separator with childR->keys[0].
 // ❸ Append middle_key (and first-child ptr) to the end of childL.
@@ -263,7 +263,7 @@ void BTreeNodeTransferLeft(BTreeNode<KeyType>* node, int index) {
 }
 
 // ── BTreeNodeTransferRight ──────────────────────────────────────────────────
-// Transfer one key from childL to childR via the parent separator at index.
+// 通过父节点在 index 处的分隔键，从左子节点向右子节点转移一个键。
 // ❶ Retrieve children and middle_key.
 // ❷ Shift childR right to make room.
 // ❸ Prepend middle_key (and childL's last child ptr) to childR.
@@ -367,7 +367,7 @@ void BTreeNodeDelete(BTreeNode<KeyType>* node, KeyType key) {
         i++;
     }
 
-    // Leaf case
+    // 叶节点情况
     if (node->is_leaf) {
         if (i < node->size && key == node->keys[i]) {
             // ❷ Shift left
@@ -381,7 +381,7 @@ void BTreeNodeDelete(BTreeNode<KeyType>* node, KeyType key) {
         return;
     }
 
-    // Internal + match
+    // 内部节点 + 匹配
     if (i < node->size && key == node->keys[i]) {
         // ❸ Replace with in-order successor
         KeyType min_key = BTreeNodeFindMin(node->children[i + 1]);
@@ -404,7 +404,7 @@ void BTreeNodeDelete(BTreeNode<KeyType>* node, KeyType key) {
 template <typename KeyType>
 void BTreeDelete(BTree<KeyType>* tree, KeyType key) {
     BTreeNodeDelete(tree->root, key);
-    // If root became empty and is not a leaf, promote its only child
+    // 如果根节点变为空且不是叶节点，则提升其唯一的子节点
     if (tree->root->size == 0 && !tree->root->is_leaf) {
         BTreeNode<KeyType>* old_root = tree->root;
         tree->root = old_root->children[0];
@@ -413,7 +413,7 @@ void BTreeDelete(BTree<KeyType>* tree, KeyType key) {
     }
 }
 
-// ── Memory cleanup ───────────────────────────────────────────────────────────
+// ── 内存清理 ─────────────────────────────────────────────────────────────────
 template <typename KeyType>
 void BTreeNodeFree(BTreeNode<KeyType>* node) {
     if (!node) return;

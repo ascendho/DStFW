@@ -5,15 +5,15 @@
 #include <limits>
 #include <utility>
 
-// ── Result structure ─────────────────────────────────────────────────────────
+// ── 结果结构 ─────────────────────────────────────────────────────────────────
 struct DijkstraResult {
-    std::vector<float> distance;   // shortest distance from source to each node
-    std::vector<int>   last;       // predecessor on the shortest path (-1 = none)
+    std::vector<float> distance;   // 从源点到每个节点的最短距离
+    std::vector<int>   last;       // 最短路径上的前驱节点（-1 = 无）
 };
 
-// ── Dijkstra's Algorithm ─────────────────────────────────────────────────────
-// Finds shortest paths from from_node_index to all other nodes in G.
-// All edge weights must be non-negative.
+// ── Dijkstra 算法 ────────────────────────────────────────────────────────────
+// 计算从 from_node_index 到 G 中所有其他节点的最短路径。
+// 所有边的权重必须为非负数。
 //
 // ❶ Initialise distance[] = ∞, last[] = -1, unvisited = all nodes.
 // ❷ While unvisited is not empty:
@@ -32,7 +32,7 @@ inline DijkstraResult Dijkstras(const Graph& G, int from_node_index) {
 
     // ❷
     for (int iter = 0; iter < G.num_nodes; iter++) {
-        // ❸ Find unvisited node with minimal distance
+        // ❸ 找到距离最小的未访问节点
         int next_index = -1;
         float best = INF;
         for (int i = 0; i < G.num_nodes; i++) {
@@ -41,12 +41,12 @@ inline DijkstraResult Dijkstras(const Graph& G, int from_node_index) {
                 next_index = i;
             }
         }
-        if (next_index == -1) break;  // remaining nodes unreachable
+        if (next_index == -1) break;  // 剩余节点不可达
 
         visited[next_index] = true;
         const Node& current = G.nodes[next_index];
 
-        // ❹ Relax edges
+        // ❹ 松弛边
         for (const Edge& edge : current.edges) {
             // ❺
             float new_dist = distance[edge.from_node] + edge.weight;
@@ -61,14 +61,14 @@ inline DijkstraResult Dijkstras(const Graph& G, int from_node_index) {
     return {distance, last};
 }
 
-// ── Helper: reconstruct shortest path from source to target ──────────────────
+// ── 辅助函数：重建从源点到目标的最短路径 ─────────────────────────────────────
 inline std::vector<int> DijkstraPath(const DijkstraResult& res, int target) {
     std::vector<int> path;
     if (res.distance[target] == std::numeric_limits<float>::infinity())
-        return path;  // unreachable
+        return path;  // 不可达
     for (int v = target; v != -1; v = res.last[v])
         path.push_back(v);
-    // Reverse to get source → target order
+    // 反转以获得源点 → 目标的顺序
     for (int i = 0, j = (int)path.size() - 1; i < j; i++, j--)
         std::swap(path[i], path[j]);
     return path;

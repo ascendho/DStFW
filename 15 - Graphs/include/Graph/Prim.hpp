@@ -5,14 +5,14 @@
 #include <limits>
 #include <utility>
 
-// ── Result structure ─────────────────────────────────────────────────────────
+// ── 结果结构 ─────────────────────────────────────────────────────────────────
 struct PrimResult {
-    std::vector<std::pair<int, int>> mst_edges;  // edges in the MST (from, to)
-    float total_weight;                           // sum of MST edge weights
+    std::vector<std::pair<int, int>> mst_edges;  // 最小生成树中的边（起点, 终点）
+    float total_weight;                           // 最小生成树边权重之和
 };
 
-// ── Prim's Algorithm ─────────────────────────────────────────────────────────
-// Finds a minimum-cost spanning tree of an undirected, connected graph.
+// ── Prim 算法 ─────────────────────────────────────────────────────────────────
+// 计算无向连通图的最小生成树。
 //
 // ❶ Initialise distance[] = ∞, last[] = -1, unvisited = all.
 // ❷ While unvisited is not empty:
@@ -30,12 +30,12 @@ inline PrimResult Prims(const Graph& G) {
     std::vector<std::pair<int, int>> mst_edges;
     float total_weight = 0.0f;
 
-    // Start from node 0 — give it distance 0 so it's picked first
+    // 从节点 0 开始——将其距离设为 0 以使其最先被选中
     distance[0] = 0.0f;
 
     // ❷
     for (int iter = 0; iter < G.num_nodes; iter++) {
-        // ❸ Find unvisited node with minimal distance
+        // ❸ 找到距离最小的未访问节点
         int next_id = -1;
         float best = INF;
         for (int i = 0; i < G.num_nodes; i++) {
@@ -44,7 +44,7 @@ inline PrimResult Prims(const Graph& G) {
                 next_id = i;
             }
         }
-        if (next_id == -1) break;  // disconnected component
+        if (next_id == -1) break;  // 不连通的分量
 
         // ❹
         if (last[next_id] != -1) {
@@ -55,7 +55,7 @@ inline PrimResult Prims(const Graph& G) {
         visited[next_id] = true;
         const Node& current = G.nodes[next_id];
 
-        // ❺ Update unvisited neighbours
+        // ❺ 更新未访问的邻居节点
         for (const Edge& edge : current.edges) {
             if (!visited[edge.to_node] &&
                 edge.weight < distance[edge.to_node]) {

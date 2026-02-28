@@ -2,7 +2,7 @@
 #include <vector>
 #include "Linked List/LinkedList.hpp"
 
-// Helper: build a linked list from a vector (caller takes ownership of head)
+// 辅助函数：从 vector 构建链表（调用者负责管理 head 的所有权）
 template<typename T>
 LinkedListNode<T>* makeList(const std::vector<T>& values) {
     if (values.empty()) return nullptr;
@@ -15,7 +15,7 @@ LinkedListNode<T>* makeList(const std::vector<T>& values) {
     return head;
 }
 
-// Helper: collect list values into a vector and free the list
+// 辅助函数：将链表值收集到 vector 中并释放链表
 template<typename T>
 std::vector<T> collectAndFree(LinkedListNode<T>* head) {
     std::vector<T> result;
@@ -75,7 +75,7 @@ TEST(LinkedListInsertTest, InsertAtEnd) {
 }
 
 TEST(LinkedListInsertTest, InsertInMiddle) {
-    // Insert 23 between index 2 (value 9) and index 3 (value 37)
+    // 在索引 2（值为 9）和索引 3（值为 37）之间插入 23
     auto* head = makeList<int>({3, 11, 9, 37, 7, 8});
     head = LinkedListInsert(head, 3, 23);
     auto result = collectAndFree(head);
@@ -112,7 +112,7 @@ TEST(LinkedListDeleteTest, DeleteTail) {
 }
 
 TEST(LinkedListDeleteTest, DeleteMiddle) {
-    // Delete node with value 37 (index 3) from {3, 11, 9, 37, 7, 8}
+    // 从 {3, 11, 9, 37, 7, 8} 中删除值为 37（索引 3）的节点
     auto* head = makeList<int>({3, 11, 9, 37, 7, 8});
     head = LinkedListDelete(head, 3);
     auto result = collectAndFree(head);

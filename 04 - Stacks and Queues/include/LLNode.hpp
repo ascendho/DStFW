@@ -1,7 +1,7 @@
 #pragma once
 
-// LinkedListNode for use in Stack/Queue linked list implementations
-// (local copy for chapter 4 self-containment)
+// 用于栈/队列链表实现的链表节点
+// （第四章独立使用的本地副本）
 template<typename T>
 struct LLNode {
     T value;

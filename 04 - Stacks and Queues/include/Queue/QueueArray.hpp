@@ -2,10 +2,10 @@
 #include <vector>
 #include <optional>
 
-// Queue implemented as a circular array.
-// Maintains front and back indices with wrap-around (modulo array_size).
+// 基于循环数组实现的队列。
+// 通过取模实现 front 和 back 索引的环绕。
 //
-// Pseudocode (array-based, wrap-around):
+// 伪代码（基于数组，环绕）：
 //   Queue {
 //       Integer: array_size
 //       Integer: front
@@ -17,9 +17,9 @@ template<typename T>
 struct QueueArray {
     std::vector<T> array;
     int array_size;
-    int front;   // index of the front element
-    int back;    // index of the back element
-    int count;   // number of elements in the queue
+    int front;   // 队首元素索引
+    int back;    // 队尾元素索引
+    int count;   // 队列中的元素数量
 
     explicit QueueArray(int initial_capacity = 4)
         : array(static_cast<std::size_t>(initial_capacity)),
@@ -29,15 +29,15 @@ struct QueueArray {
           count(0) {}
 };
 
-// Enqueue(Queue: q, Type: value)
+// 入队（Enqueue）
 template<typename T>
 void Enqueue(QueueArray<T>& q, const T& value);
 
-// Dequeue(Queue: q) -> returns the front value, or std::nullopt if empty
+// 出队（Dequeue）—— 返回队首值，空队列时返回 std::nullopt
 template<typename T>
 std::optional<T> Dequeue(QueueArray<T>& q);
 
-// Peek at the front value without removing it
+// 查看队首值但不移除
 template<typename T>
 std::optional<T> Front(const QueueArray<T>& q);
 

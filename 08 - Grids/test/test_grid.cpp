@@ -3,7 +3,7 @@
 #include "Grid/Grid.hpp"
 #include "NearestNeighbor/NearestNeighbor.hpp"
 
-// ─── Helper ───────────────────────────────────────────────────────────────────
+// ─── 辅助函数 ─────────────────────────────────────────────────────────────────
 static bool grid_contains(const Grid& g, float x, float y) {
     int xbin = static_cast<int>(std::floor((x - g.x_start) / g.x_bin_width));
     int ybin = static_cast<int>(std::floor((y - g.y_start) / g.y_bin_width));
@@ -17,7 +17,7 @@ static bool grid_contains(const Grid& g, float x, float y) {
     return false;
 }
 
-// ─── Grid Construction ────────────────────────────────────────────────────────
+// ─── 网格构造 ──────────────────────────────────────────────────────────────────
 TEST(GridTest, ConstructionDimensions) {
     Grid g(4, 4, 0.0f, 8.0f, 0.0f, 8.0f);
     EXPECT_EQ(g.num_x_bins, 4);
@@ -46,11 +46,11 @@ TEST(GridInsertTest, InsertSinglePoint) {
 
 TEST(GridInsertTest, InsertMultiplePointsSameBin) {
     Grid g(2, 2, 0.0f, 4.0f, 0.0f, 4.0f);
-    // All in bin (0,0)
+    // 全部位于单元格 (0,0)
     EXPECT_TRUE(GridInsert(g, 0.5f, 0.5f));
     EXPECT_TRUE(GridInsert(g, 1.0f, 1.0f));
     EXPECT_TRUE(GridInsert(g, 1.5f, 1.5f));
-    EXPECT_EQ(g.bins[0][0]->x, 1.5f); // most recently inserted is at front
+    EXPECT_EQ(g.bins[0][0]->x, 1.5f); // 最近插入的在链表头部
     EXPECT_TRUE(grid_contains(g, 0.5f, 0.5f));
     EXPECT_TRUE(grid_contains(g, 1.0f, 1.0f));
     EXPECT_TRUE(grid_contains(g, 1.5f, 1.5f));
@@ -66,17 +66,17 @@ TEST(GridInsertTest, InsertPointOutsideBounds) {
 
 TEST(GridInsertTest, InsertAtBinBoundary) {
     Grid g(4, 4, 0.0f, 4.0f, 0.0f, 4.0f);
-    // x=1.0 is the boundary between bin 0 and bin 1
+    // x=1.0 是单元格 0 和单元格 1 之间的边界
     EXPECT_TRUE(GridInsert(g, 1.0f, 1.0f));
-    // Exactly at x_end (8.0) is outside the grid
+    // 恰好在 x_end（8.0）处于网格范围之外
     EXPECT_FALSE(GridInsert(g, 4.0f, 2.0f));
 }
 
 TEST(GridInsertTest, InsertDuplicatePoints) {
     Grid g(2, 2, 0.0f, 4.0f, 0.0f, 4.0f);
     EXPECT_TRUE(GridInsert(g, 1.0f, 1.0f));
-    EXPECT_TRUE(GridInsert(g, 1.0f, 1.0f)); // duplicates are allowed
-    // Both should be present (two nodes in the list)
+    EXPECT_TRUE(GridInsert(g, 1.0f, 1.0f)); // 允许重复
+    // 两者都应存在（链表中有两个节点）
     int count = 0;
     GridPoint* cur = g.bins[0][0];
     while (cur) { ++count; cur = cur->next; }
@@ -107,7 +107,7 @@ TEST(GridDeleteTest, DeleteFirstOfMultiple) {
     GridInsert(g, 0.5f, 0.5f);
     GridInsert(g, 1.0f, 1.0f);
     GridInsert(g, 1.5f, 1.5f);
-    // Delete the head node (most recently inserted: 1.5,1.5)
+    // 删除头节点（最近插入的：1.5,1.5）
     EXPECT_TRUE(GridDelete(g, 1.5f, 1.5f));
     EXPECT_FALSE(grid_contains(g, 1.5f, 1.5f));
     EXPECT_TRUE(grid_contains(g, 1.0f, 1.0f));
@@ -130,7 +130,7 @@ TEST(GridDeleteTest, DeleteOnlyRemovesFirstDuplicate) {
     GridInsert(g, 1.0f, 1.0f);
     GridInsert(g, 1.0f, 1.0f);
     EXPECT_TRUE(GridDelete(g, 1.0f, 1.0f));
-    // One copy should remain
+    // 应保留一个副本
     EXPECT_TRUE(grid_contains(g, 1.0f, 1.0f));
     EXPECT_TRUE(GridDelete(g, 1.0f, 1.0f));
     EXPECT_FALSE(grid_contains(g, 1.0f, 1.0f));
@@ -139,13 +139,13 @@ TEST(GridDeleteTest, DeleteOnlyRemovesFirstDuplicate) {
 // ─── MinDistToBin ─────────────────────────────────────────────────────────────
 TEST(MinDistToBinTest, PointInsideBin) {
     Grid g(4, 4, 0.0f, 8.0f, 0.0f, 8.0f);
-    // Bin (1,1) covers x:[2,4], y:[2,4].  Point (3,3) is inside → dist = 0
+    // 单元格 (1,1) 覆盖 x:[2,4], y:[2,4]。点 (3,3) 在内部 → dist = 0
     EXPECT_FLOAT_EQ(MinDistToBin(g, 1, 1, 3.0f, 3.0f), 0.0f);
 }
 
 TEST(MinDistToBinTest, PointOutsideBin) {
     Grid g(4, 4, 0.0f, 8.0f, 0.0f, 8.0f);
-    // Bin (0,0) covers x:[0,2], y:[0,2].  Point (3,1) → x_dist=1, y_dist=0
+    // 单元格 (0,0) 覆盖 x:[0,2], y:[0,2]。点 (3,1) → x_dist=1, y_dist=0
     EXPECT_FLOAT_EQ(MinDistToBin(g, 0, 0, 3.0f, 1.0f), 1.0f);
 }
 
@@ -177,7 +177,7 @@ TEST(GridLinearScanNNTest, MultiplePoints) {
     GridInsert(g, 1.0f, 1.0f);
     GridInsert(g, 6.0f, 6.0f);
     GridInsert(g, 4.0f, 4.0f);
-    // Target (4.1, 4.1) — closest is (4.0, 4.0)
+    // 目标 (4.1, 4.1) — 最近的是 (4.0, 4.0)
     GridPoint* nn = GridLinearScanNN(g, 4.1f, 4.1f);
     ASSERT_NE(nn, nullptr);
     EXPECT_FLOAT_EQ(nn->x, 4.0f);
@@ -188,7 +188,7 @@ TEST(GridLinearScanNNTest, TargetOutsideGrid) {
     Grid g(4, 4, 0.0f, 8.0f, 0.0f, 8.0f);
     GridInsert(g, 7.0f, 7.0f);
     GridInsert(g, 1.0f, 1.0f);
-    // Target (10.0, 10.0) is outside; closest should be (7.0, 7.0)
+    // 目标 (10.0, 10.0) 在网格外；最近的应该是 (7.0, 7.0)
     GridPoint* nn = GridLinearScanNN(g, 10.0f, 10.0f);
     ASSERT_NE(nn, nullptr);
     EXPECT_FLOAT_EQ(nn->x, 7.0f);
@@ -197,12 +197,12 @@ TEST(GridLinearScanNNTest, TargetOutsideGrid) {
 
 TEST(GridLinearScanNNTest, TieBreakFirstFound) {
     Grid g(4, 4, 0.0f, 8.0f, 0.0f, 8.0f);
-    // Two equidistant points
+    // 两个等距点
     GridInsert(g, 2.0f, 4.0f);
     GridInsert(g, 6.0f, 4.0f);
     GridPoint* nn = GridLinearScanNN(g, 4.0f, 4.0f);
     ASSERT_NE(nn, nullptr);
-    // Both are at distance 2; the function returns one of them
+    // 两者距离均为 2；函数返回其中一个
     float d = euclidean_dist(4.0f, 4.0f, nn->x, nn->y);
     EXPECT_FLOAT_EQ(d, 2.0f);
 }
@@ -234,7 +234,7 @@ TEST(GridSearchExpandingTest, MultiplePointsMatchLinearScan) {
     GridPoint* es = GridSearchExpanding(g, tx, ty);
     ASSERT_NE(ls, nullptr);
     ASSERT_NE(es, nullptr);
-    // Both should find the same nearest-neighbour point
+    // 两者应找到相同的最近邻点
     EXPECT_FLOAT_EQ(euclidean_dist(tx, ty, ls->x, ls->y),
                     euclidean_dist(tx, ty, es->x, es->y));
 }
@@ -250,11 +250,11 @@ TEST(GridSearchExpandingTest, TargetOutsideGrid) {
 }
 
 TEST(GridSearchExpandingTest, PointInAdjacentBin) {
-    // Target is in one bin but the nearest point is in the adjacent bin
+    // 目标在一个单元格中，但最近点在相邻的单元格中
     Grid g(4, 4, 0.0f, 8.0f, 0.0f, 8.0f);
-    GridInsert(g, 2.1f, 2.1f); // bin (1,1) — just across the border
+    GridInsert(g, 2.1f, 2.1f); // 单元格 (1,1) — 刚好越过边界
     GridInsert(g, 6.0f, 6.0f);
-    // Target near (2.0, 2.0) — the bin boundary
+    // 目标靠近 (2.0, 2.0) — 单元格边界
     GridPoint* nn = GridSearchExpanding(g, 1.9f, 1.9f);
     ASSERT_NE(nn, nullptr);
     EXPECT_FLOAT_EQ(nn->x, 2.1f);
@@ -263,7 +263,7 @@ TEST(GridSearchExpandingTest, PointInAdjacentBin) {
 
 TEST(GridSearchExpandingTest, ConsistentWithLinearScanOnRandomPoints) {
     Grid g(5, 5, 0.0f, 10.0f, 0.0f, 10.0f);
-    // Insert a spread of points
+    // 插入分散的点
     float pts[][2] = {
         {0.5f, 0.5f}, {2.3f, 1.7f}, {4.1f, 6.2f},
         {7.8f, 3.3f}, {5.0f, 5.0f}, {9.1f, 8.5f},

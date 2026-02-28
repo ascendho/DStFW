@@ -26,12 +26,12 @@ TEST(QueueArrayTest, FIFOOrdering) {
 }
 
 TEST(QueueArrayTest, WrapAround) {
-    // capacity = 4; dequeue some then enqueue more to trigger wrap-around
+    // 容量 = 4；先出队一些再入队以触发环绕
     QueueArray<int> q(4);
     Enqueue(q, 1); Enqueue(q, 2); Enqueue(q, 3);
     EXPECT_EQ(Dequeue(q), 1);
     EXPECT_EQ(Dequeue(q), 2);
-    // Now front == 2, back == 2; enqueue two more to wrap back around
+    // 此时 front == 2, back == 2；再入队两个以触发回绕
     Enqueue(q, 4); Enqueue(q, 5);
     EXPECT_EQ(Dequeue(q), 3);
     EXPECT_EQ(Dequeue(q), 4);
@@ -60,7 +60,7 @@ TEST(QueueArrayTest, FrontPeek) {
     EXPECT_EQ(Front(q), std::nullopt);
     Enqueue(q, 10);
     EXPECT_EQ(Front(q), 10);
-    EXPECT_EQ(Front(q), 10);  // still in queue
+    EXPECT_EQ(Front(q), 10);  // 仍在队列中
 }
 
 // ─── QueueList ────────────────────────────────────────────────────────────────
@@ -99,9 +99,9 @@ TEST(QueueListTest, SingleElementEnqueueDequeue) {
     QueueList<int> q;
     Enqueue(q, 99);
     EXPECT_EQ(Dequeue(q), 99);
-    // After removing the last element, both front and back should be null
+    // 移除最后一个元素后，front 和 back 都应为 null
     EXPECT_TRUE(IsEmpty(q));
-    // A subsequent enqueue should still work correctly
+    // 后续入队操作仍应正常工作
     Enqueue(q, 5);
     EXPECT_EQ(Dequeue(q), 5);
 }
@@ -111,7 +111,7 @@ TEST(QueueListTest, FrontPeek) {
     EXPECT_EQ(Front(q), std::nullopt);
     Enqueue(q, 3);
     EXPECT_EQ(Front(q), 3);
-    EXPECT_EQ(Front(q), 3);  // still in queue
+    EXPECT_EQ(Front(q), 3);  // 仍在队列中
 }
 
 TEST(QueueListTest, LargeNumberOfElements) {

@@ -32,7 +32,7 @@ TEST(ArrayDoubleTest, SingleElement) {
 TEST(ArrayDoubleTest, NewElementsDefaultInitialized) {
     std::vector<int> v{1, 2};
     auto result = ArrayDouble(v);
-    // The second half should be default-initialized (0 for int)
+    // 后半部分应为默认初始化（int 类型为 0）
     EXPECT_EQ(result[2], 0);
     EXPECT_EQ(result[3], 0);
 }

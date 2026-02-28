@@ -1,9 +1,9 @@
 #pragma once
 
-// LinkedListNode - Chapter 3: Dynamic Data Structures
-// A singly linked list node containing a value and a pointer to the next node.
+// LinkedListNode — 第三章：动态数据结构
+// 单链表节点，包含一个值和指向下一个节点的指针。
 //
-// Pseudocode:
+// 伪代码：
 //   LinkedListNode {
 //       Type: value
 //       LinkedListNode: next

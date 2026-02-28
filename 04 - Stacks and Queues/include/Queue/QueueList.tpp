@@ -11,12 +11,12 @@
 template<typename T>
 void Enqueue(QueueList<T>& q, const T& value) {
     LLNode<T>* node = new LLNode<T>(value);
-    if (q.back == nullptr) {  // 1 — empty queue
+    if (q.back == nullptr) {  // 1 — 空队列
         q.front = node;
         q.back  = node;
     } else {
-        q.back->next = node;  // 2 — link to existing tail
-        q.back = node;        // 3 — update tail pointer
+        q.back->next = node;  // 2 — 链接到现有尾部
+        q.back = node;        // 3 — 更新尾指针
     }
 }
 
@@ -30,14 +30,14 @@ void Enqueue(QueueList<T>& q, const T& value) {
 //     return value
 template<typename T>
 std::optional<T> Dequeue(QueueList<T>& q) {
-    if (q.front == nullptr) {  // 1 — empty queue
+    if (q.front == nullptr) {  // 1 — 空队列
         return std::nullopt;
     }
-    T value = q.front->value;  // 2 — save value
+    T value = q.front->value;  // 2 — 保存值
     LLNode<T>* old_front = q.front;
-    q.front = q.front->next;   // 3 — advance front pointer
+    q.front = q.front->next;   // 3 — 前移 front 指针
     if (q.front == nullptr) {
-        q.back = nullptr;      // last element was removed
+        q.back = nullptr;      // 最后一个元素已被移除
     }
     delete old_front;
     return value;

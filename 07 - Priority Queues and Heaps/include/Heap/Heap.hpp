@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 
-// Heap - Chapter 7: Priority Queues and Heaps
-// Array-based heap (1-indexed: array[1..last_index] are the valid elements;
-// array[0] is unused). Both max and min heaps share this structure.
+// 堆 — 第七章：优先队列与堆
+// 基于数组的堆（1 索引：array[1..last_index] 为有效元素；
+// array[0] 未使用）。最大堆和最小堆共享此结构。
 //
 // Pseudocode:
 //   Heap {
@@ -13,9 +13,9 @@
 //   }
 template<typename T>
 struct Heap {
-    std::vector<T> array;      // physical storage; index 0 unused
-    int array_size;            // physical size of array
-    int last_index;            // index of the last element; 0 means empty
+    std::vector<T> array;      // 物理存储；索引 0 未使用
+    int array_size;            // 数组的物理大小
+    int last_index;            // 最后一个元素的索引；0 表示空
 
     explicit Heap(int initial_capacity = 16)
         : array(static_cast<std::size_t>(initial_capacity)),

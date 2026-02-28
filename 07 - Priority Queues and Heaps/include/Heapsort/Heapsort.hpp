@@ -2,9 +2,9 @@
 #include <vector>
 #include "Max Heap/MaxHeap.hpp"
 
-// Heapsort - Chapter 7: Priority Queues and Heaps
-// Sorts an array in decreasing order using a max heap.
-// (For increasing order, use a min heap — see HeapsortAsc below.)
+// 堆排序 — 第七章：优先队列与堆
+// 使用最大堆将数组按降序排序。
+// （若需升序，使用最小堆 — 参见下方的 HeapsortAsc。）
 //
 // Pseudocode:
 //   Heapsort(Array: unsorted):
@@ -24,7 +24,7 @@
 template<typename T>
 std::vector<T> Heapsort(const std::vector<T>& unsorted);
 
-// Variant that sorts in increasing order using a min heap.
+// 使用最小堆按升序排序的变体。
 template<typename T>
 std::vector<T> HeapsortAsc(const std::vector<T>& unsorted);
 

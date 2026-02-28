@@ -14,24 +14,24 @@
 //         parent = Floor(current / 2)
 template<typename T>
 void HeapInsert(Heap<T>& heap, const T& value) {
-    // 1 Expand if full
+    // 1 若已满则扩容
     if (heap.last_index == heap.array_size - 1) {
         int new_size = heap.array_size * 2;
         heap.array.resize(static_cast<std::size_t>(new_size));
         heap.array_size = new_size;
     }
-    // 2 Append to end
+    // 2 追加到末尾
     heap.last_index = heap.last_index + 1;
     heap.array[static_cast<std::size_t>(heap.last_index)] = value;
 
-    // 3 Bubble up
+    // 3 上浮
     int current = heap.last_index;
     int parent  = current / 2;
-    // 4 While parent exists and parent < current (max-heap: parent should be >= child)
+    // 4 当父节点存在且父节点 < 当前节点时（最大堆：父节点应 >= 子节点）
     while (parent >= 1 &&
            heap.array[static_cast<std::size_t>(parent)] <
            heap.array[static_cast<std::size_t>(current)]) {
-        // 5 Swap
+        // 5 交换
         T temp = heap.array[static_cast<std::size_t>(parent)];
         heap.array[static_cast<std::size_t>(parent)]  = heap.array[static_cast<std::size_t>(current)];
         heap.array[static_cast<std::size_t>(current)] = temp;
@@ -63,33 +63,33 @@ void HeapInsert(Heap<T>& heap, const T& value) {
 //     return result
 template<typename T>
 std::optional<T> HeapRemoveMax(Heap<T>& heap) {
-    // 1 Empty check
+    // 1 空堆检查
     if (heap.last_index == 0) {
         return std::nullopt;
     }
-    // 2 Save root, promote last element to root, shrink heap
+    // 2 保存根节点，将最后一个元素提升为根节点，收缩堆
     T result = heap.array[1];
     heap.array[1] = heap.array[static_cast<std::size_t>(heap.last_index)];
-    heap.array[static_cast<std::size_t>(heap.last_index)] = T{};  // clear
+    heap.array[static_cast<std::size_t>(heap.last_index)] = T{};  // 清除
     heap.last_index = heap.last_index - 1;
 
-    // 3 Bubble down
+    // 3 下沉
     int i = 1;
     while (i <= heap.last_index) {
         int swap_idx = i;
-        // 4 Check left child
+        // 4 检查左子节点
         if (2 * i <= heap.last_index &&
             heap.array[static_cast<std::size_t>(swap_idx)] <
             heap.array[static_cast<std::size_t>(2 * i)]) {
             swap_idx = 2 * i;
         }
-        // 5 Check right child
+        // 5 检查右子节点
         if (2 * i + 1 <= heap.last_index &&
             heap.array[static_cast<std::size_t>(swap_idx)] <
             heap.array[static_cast<std::size_t>(2 * i + 1)]) {
             swap_idx = 2 * i + 1;
         }
-        // 6 Perform swap or break
+        // 6 执行交换或跳出
         if (i != swap_idx) {
             T temp = heap.array[static_cast<std::size_t>(i)];
             heap.array[static_cast<std::size_t>(i)]        = heap.array[static_cast<std::size_t>(swap_idx)];
@@ -115,7 +115,7 @@ void UpdateMaxValue(Heap<T>& heap, int index, const T& value) {
     heap.array[static_cast<std::size_t>(index)] = value;
 
     if (old_value < value) {
-        // Bubble up
+        // 上浮
         int current = index;
         int parent  = current / 2;
         while (parent >= 1 &&
@@ -128,7 +128,7 @@ void UpdateMaxValue(Heap<T>& heap, int index, const T& value) {
             parent  = current / 2;
         }
     } else {
-        // Bubble down
+        // 下沉
         int i = index;
         while (i <= heap.last_index) {
             int swap_idx = i;

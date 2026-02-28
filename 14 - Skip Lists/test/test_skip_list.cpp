@@ -5,9 +5,9 @@
 #include <random>
 #include "SkipList/SkipList.hpp"
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── 辅助函数 ──────────────────────────────────────────────────────────────────
 
-// Collect all keys by walking level 0
+// 遍历第 0 层收集所有键
 template <typename K, typename V>
 static std::vector<K> AllKeys(SkipList<K, V>& list) {
     std::vector<K> keys;
@@ -19,12 +19,12 @@ static std::vector<K> AllKeys(SkipList<K, V>& list) {
     return keys;
 }
 
-// Validate skip-list structural invariants:
-//   - Level-0 keys are strictly sorted
-//   - Every higher-level chain is a subsequence of the chain at the level below
-//   - top_level is correct (highest level with at least one node, or 0 if empty)
+// 验证跳表的结构不变量：
+//   - 第 0 层的键严格有序
+//   - 每个更高层级的链是其下一层链的子序列
+//   - top_level 正确（具有至少一个节点的最高层级，空表时为 0）
 static void Validate(SkipList<int, int>& list) {
-    // Check level-0 sorted
+    // 检查第 0 层是否有序
     auto* cur = list.front->next[0];
     while (cur && cur->next[0]) {
         EXPECT_LT(cur->key, cur->next[0]->key)
@@ -32,12 +32,12 @@ static void Validate(SkipList<int, int>& list) {
         cur = cur->next[0];
     }
 
-    // Each higher level chain must be a subset of the level below
+    // 每个更高层级的链必须是其下一层的子集
     for (int lv = 1; lv <= list.top_level; lv++) {
         auto* hi = list.front->next[lv];
         auto* lo = list.front->next[lv - 1];
         while (hi) {
-            // Advance lo until we find hi's key
+            // 向前推进 lo 直到找到 hi 的键
             while (lo && lo->key < hi->key) lo = lo->next[lv - 1];
             ASSERT_NE(lo, nullptr) << "Higher-level node not found in lower level";
             EXPECT_EQ(lo, hi)
@@ -46,15 +46,15 @@ static void Validate(SkipList<int, int>& list) {
         }
     }
 
-    // top_level validity
+    // top_level 有效性
     if (list.front->next[0] == nullptr) {
-        // empty list — top_level should be 0
+        // 空表 ── top_level 应为 0
         EXPECT_EQ(list.top_level, 0);
     } else {
-        // front->next[top_level] should be non-null
+        // front->next[top_level] 应非空
         EXPECT_NE(list.front->next[list.top_level], nullptr)
             << "top_level should point to a level with at least one node";
-        // levels above top_level should all be null
+        // top_level 以上的层级应全部为空
         for (int lv = list.top_level + 1; lv <= list.max_level; lv++) {
             EXPECT_EQ(list.front->next[lv], nullptr)
                 << "level " << lv << " above top_level should be empty";
@@ -62,13 +62,13 @@ static void Validate(SkipList<int, int>& list) {
     }
 }
 
-// Fixed-seed skip list for deterministic tests
+// 固定种子的跳表，用于确定性测试
 static SkipList<int, int> MakeList(int max_level = 16,
                                    unsigned seed = 42) {
     return SkipList<int, int>(max_level, 0.5, seed);
 }
 
-// ── Search Tests ─────────────────────────────────────────────────────────────
+// ── 搜索测试 ──────────────────────────────────────────────────────────────────
 
 TEST(SkipListSearch, EmptyList) {
     auto list = MakeList();
@@ -96,7 +96,7 @@ TEST(SkipListSearch, MultipleElements) {
     EXPECT_FALSE(SkipListSearch(list, 11).has_value());
 }
 
-// ── Insert Tests ─────────────────────────────────────────────────────────────
+// ── 插入测试 ──────────────────────────────────────────────────────────────────
 
 TEST(SkipListInsert, InsertMaintainsSortedOrder) {
     auto list = MakeList();
@@ -114,7 +114,7 @@ TEST(SkipListInsert, InsertDuplicateUpdatesValue) {
     ASSERT_TRUE(val.has_value());
     EXPECT_EQ(val.value(), 99);
     auto keys = AllKeys(list);
-    EXPECT_EQ(keys.size(), 1u); // no duplicate node
+    EXPECT_EQ(keys.size(), 1u); // 无重复节点
 }
 
 TEST(SkipListInsert, InsertReverseOrder) {
@@ -149,7 +149,7 @@ TEST(SkipListInsert, InsertRandomOrder) {
     EXPECT_EQ(keys, values);
 }
 
-// ── Delete Tests ─────────────────────────────────────────────────────────────
+// ── 删除测试 ──────────────────────────────────────────────────────────────────
 
 TEST(SkipListDelete, DeleteSingleElement) {
     auto list = MakeList();
@@ -162,7 +162,7 @@ TEST(SkipListDelete, DeleteSingleElement) {
 TEST(SkipListDelete, DeleteNonExistent) {
     auto list = MakeList();
     for (int v : {1, 3, 5}) SkipListInsert(list, v, v);
-    SkipListDelete(list, 99); // no-op
+    SkipListDelete(list, 99); // 无操作
     auto keys = AllKeys(list);
     EXPECT_EQ(keys, (std::vector<int>{1, 3, 5}));
 }
@@ -220,19 +220,19 @@ TEST(SkipListDelete, DeleteLargeRandomSet) {
     EXPECT_TRUE(AllKeys(list).empty());
 }
 
-// ── Interleaved Insert / Delete ──────────────────────────────────────────────
+// ── 交替插入/删除 ────────────────────────────────────────────────────────────
 
 TEST(SkipListMixed, InterleavedInsertDelete) {
     auto list = MakeList();
     for (int i = 1; i <= 30; i++) SkipListInsert(list, i, i);
-    // Delete odds
+    // 删除奇数
     for (int i = 1; i <= 30; i += 2) SkipListDelete(list, i);
     Validate(list);
     auto keys = AllKeys(list);
     std::vector<int> evens;
     for (int i = 2; i <= 30; i += 2) evens.push_back(i);
     EXPECT_EQ(keys, evens);
-    // Re-insert odds
+    // 重新插入奇数
     for (int i = 1; i <= 30; i += 2) SkipListInsert(list, i, i);
     Validate(list);
     keys = AllKeys(list);
@@ -241,7 +241,7 @@ TEST(SkipListMixed, InterleavedInsertDelete) {
     EXPECT_EQ(keys, all);
 }
 
-// ── String keys ──────────────────────────────────────────────────────────────
+// ── 字符串键 ──────────────────────────────────────────────────────────────────
 
 TEST(SkipListString, StringKeysWork) {
     SkipList<std::string, int> list(8, 0.5, 42);
@@ -254,8 +254,8 @@ TEST(SkipListString, StringKeysWork) {
     EXPECT_FALSE(SkipListSearch(list, std::string("dave")).has_value());
 }
 
-// ── Random Level Distribution ────────────────────────────────────────────────
-// With p=0.5, ~50% of nodes should be level 0, ~25% level 1, etc.
+// ── 随机层级分布 ──────────────────────────────────────────────────────────────
+// 当 p=0.5 时，约 50% 的节点应在第 0 层，约 25% 在第 1 层，依此类推。
 TEST(SkipListRandomLevel, DistributionRoughlyGeometric) {
     SkipList<int, int> list(16, 0.5, 777);
     const int N = 10000;
@@ -266,22 +266,22 @@ TEST(SkipListRandomLevel, DistributionRoughlyGeometric) {
         ASSERT_LE(lv, list.max_level);
         counts[lv]++;
     }
-    // Level 0 should be roughly 50%
+    // 第 0 层应约占 50%
     double frac0 = static_cast<double>(counts[0]) / N;
     EXPECT_GT(frac0, 0.40);
     EXPECT_LT(frac0, 0.60);
-    // Level 1 should be roughly 25%
+    // 第 1 层应约占 25%
     double frac1 = static_cast<double>(counts[1]) / N;
     EXPECT_GT(frac1, 0.18);
     EXPECT_LT(frac1, 0.32);
 }
 
-// ── top_level adjusts on delete ──────────────────────────────────────────────
+// ── 删除时 top_level 调整 ────────────────────────────────────────────────────
 TEST(SkipListTopLevel, TopLevelDecreasesOnDelete) {
     auto list = MakeList(16, 500);
     for (int i = 1; i <= 50; i++) SkipListInsert(list, i, i);
     int initial_top = list.top_level;
-    // Delete everything
+    // 删除全部
     for (int i = 1; i <= 50; i++) SkipListDelete(list, i);
     EXPECT_EQ(list.top_level, 0);
     EXPECT_LE(list.top_level, initial_top);

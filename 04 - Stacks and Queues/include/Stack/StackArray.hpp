@@ -2,9 +2,9 @@
 #include <vector>
 #include <optional>
 
-// Stack implemented as a dynamic array (array doubling on overflow).
+// 基于动态数组实现的栈（溢出时数组倍增）。
 //
-// Pseudocode (array-based):
+// 伪代码（基于数组）：
 //   Stack {
 //       Integer: array_size
 //       Integer: top
@@ -13,7 +13,7 @@
 template<typename T>
 struct StackArray {
     std::vector<T> array;
-    int top;       // index of the top element; -1 means empty
+    int top;       // 栈顶元素索引；-1 表示空栈
     int array_size;
 
     explicit StackArray(int initial_capacity = 4)
@@ -22,15 +22,15 @@ struct StackArray {
           array_size(initial_capacity) {}
 };
 
-// Push(Stack: s, Type: value)
+// 入栈（Push）
 template<typename T>
 void Push(StackArray<T>& s, const T& value);
 
-// Pop(Stack: s) -> returns the top value, or std::nullopt if empty
+// 出栈（Pop）—— 返回栈顶值，空栈时返回 std::nullopt
 template<typename T>
 std::optional<T> Pop(StackArray<T>& s);
 
-// Peek at the top value without removing it
+// 查看栈顶值但不移除
 template<typename T>
 std::optional<T> Top(const StackArray<T>& s);
 

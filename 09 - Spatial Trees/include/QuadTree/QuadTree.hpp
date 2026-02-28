@@ -4,7 +4,7 @@
 #include <limits>
 #include "Point.hpp"
 
-// ─── Splitting constants ──────────────────────────────────────────────────────
+// ─── 分割常量 ──────────────────────────────────────────────────────────────────
 static constexpr int   QUAD_MAX_LEAF_POINTS = 1;
 static constexpr float QUAD_MIN_BIN_SIZE    = 1e-6f;
 
@@ -39,23 +39,23 @@ struct QuadTree {
     ~QuadTree();
 };
 
-// ─── Helper functions ─────────────────────────────────────────────────────────
+// ─── 辅助函数 ──────────────────────────────────────────────────────────────────
 bool  qt_approx_equal(float x1, float y1, float x2, float y2);
 bool  qt_should_split(const QuadTreeNode* node);
 float MinDist(const QuadTreeNode* node, float x, float y);
 
-// ─── Collapse ─────────────────────────────────────────────────────────────────
+// ─── 合并 ──────────────────────────────────────────────────────────────────────
 std::vector<Point> QuadTreeNodeCollapse(QuadTreeNode* node);
 
-// ─── Insert ───────────────────────────────────────────────────────────────────
+// ─── 插入 ──────────────────────────────────────────────────────────────────────
 bool QuadTreeInsert(QuadTree& tree, float x, float y);
 void QuadTreeNodeInsert(QuadTreeNode* node, float x, float y);
 
-// ─── Delete ───────────────────────────────────────────────────────────────────
+// ─── 删除 ──────────────────────────────────────────────────────────────────────
 bool QuadTreeDelete(QuadTree& tree, float x, float y);
 bool QuadTreeNodeDelete(QuadTreeNode* node, float x, float y);
 
-// ─── Nearest-Neighbor Search ──────────────────────────────────────────────────
+// ─── 最近邻搜索 ──────────────────────────────────────────────────────────────
 Point* QuadTreeNearestNeighbor(QuadTree& tree, float x, float y);
 Point* QuadTreeNodeNearestNeighbor(QuadTreeNode* node, float x, float y,
                                    float& best_dist);

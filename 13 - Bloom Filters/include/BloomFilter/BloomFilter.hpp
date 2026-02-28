@@ -4,40 +4,39 @@
 #include <functional>
 #include <cstddef>
 
-// ── Data Structure ────────────────────────────────────────────────────────────
-// A Bloom filter stores a bit array of `size` bins and k independent hash
-// functions.  An inserted key flips k bins to 1; a lookup returns true only if
-// all k bins are 1 (no false negatives; occasional false positives possible).
+// ── 数据结构 ──────────────────────────────────────────────────────────────────
+// 布隆过滤器存储一个包含 `size` 个槽位的位数组和 k 个独立的哈希函数。
+// 插入的键将 k 个槽位翻转为 1；查找仅在所有 k 个槽位均为 1 时返回 true
+//（无假阴性；可能出现假阳性）。
 //
-// Hash-function family: uses the splitmix64 finalizer seeded differently for
-// each of the k slots, giving independent-looking mappings from a single call
-// to std::hash<KeyType>.
+// 哈希函数族：使用 splitmix64 终结器，为 k 个槽位分别设置不同的种子，
+// 从单次 std::hash<KeyType> 调用产生看似独立的映射。
 template <typename KeyType>
 struct BloomFilter {
-    int size;                                              // m – number of bins
-    int k;                                                 // number of hash fns
-    std::vector<bool> bins;                                // bit array
-    std::vector<std::function<size_t(const KeyType&)>> h; // hash functions
+    int size;                                              // m – 槽位数量
+    int k;                                                 // 哈希函数数量
+    std::vector<bool> bins;                                // 位数组
+    std::vector<std::function<size_t(const KeyType&)>> h; // 哈希函数
 
-    // Construct with given size/k; hash functions are seeded automatically.
+    // 使用给定的 size/k 构造；哈希函数自动设置种子。
     BloomFilter(int size, int k);
 
-    // Construct with an explicitly supplied hash-function family (size k).
+    // 使用显式提供的哈希函数族（大小为 k）构造。
     BloomFilter(int size, int k,
                 std::vector<std::function<size_t(const KeyType&)>> hash_fns);
 };
 
-// ── Operations ────────────────────────────────────────────────────────────────
+// ── 操作 ──────────────────────────────────────────────────────────────────────
 template <typename KeyType>
 void BloomFilterInsertKey(BloomFilter<KeyType>& filter, const KeyType& key);
 
-// Returns false  → key is definitely not present (no false negatives).
-// Returns true   → key is probably present (false positive possible).
+// 返回 false → 键一定不存在（无假阴性）。
+// 返回 true  → 键可能存在（可能为假阳性）。
 template <typename KeyType>
 bool BloomFilterLookup(const BloomFilter<KeyType>& filter, const KeyType& key);
 
-// ── Formula ───────────────────────────────────────────────────────────────────
-// Theoretical false-positive rate for n items, m bins, k hash functions:
+// ── 公式 ──────────────────────────────────────────────────────────────────────
+// n 个元素、m 个槽位、k 个哈希函数的理论假阳性率：
 //   FPR ≈ (1 − (1 − 1/m)^(n·k))^k
 double BloomFilterFalsePositiveRate(int n, int m, int k);
 

@@ -3,17 +3,16 @@
 #include <vector>
 #include <optional>
 
-// ── Data Structures ──────────────────────────────────────────────────────────
-// BTreeNode holds at most 2k keys and 2k+2 children; the extra slot (2k+1
-// keys / 2k+2 children) lets a node temporarily overfill before its parent
-// splits it.
+// ── 数据结构 ─────────────────────────────────────────────────────────────────
+// B 树节点最多保存 2k 个键和 2k+2 个子节点；额外的槽位（2k+1 个键 /
+// 2k+2 个子节点）允许节点在其父节点分割之前暂时上溢。
 template <typename KeyType = int>
 struct BTreeNode {
     int                            k;
     int                            size;
     bool                           is_leaf;
-    std::vector<KeyType>           keys;      // capacity 2k+1
-    std::vector<BTreeNode<KeyType>*> children;  // capacity 2k+2
+    std::vector<KeyType>           keys;      // 容量 2k+1
+    std::vector<BTreeNode<KeyType>*> children;  // 容量 2k+2
 
     BTreeNode(int k, bool is_leaf)
         : k(k), size(0), is_leaf(is_leaf),
@@ -30,14 +29,14 @@ struct BTree {
         : k(k), root(new BTreeNode<KeyType>(k, true)) {}
 };
 
-// ── Search ───────────────────────────────────────────────────────────────────
+// ── 搜索 ─────────────────────────────────────────────────────────────────────
 template <typename KeyType>
 std::optional<KeyType> BTreeNodeSearch(BTreeNode<KeyType>* node, KeyType target);
 
 template <typename KeyType>
 std::optional<KeyType> BTreeSearch(BTree<KeyType>* tree, KeyType target);
 
-// ── Insert helpers ───────────────────────────────────────────────────────────
+// ── 插入辅助函数 ─────────────────────────────────────────────────────────────
 template <typename KeyType>
 void BTreeNodeAddKey(BTreeNode<KeyType>* node, KeyType key,
                      BTreeNode<KeyType>* next_child = nullptr);
@@ -54,7 +53,7 @@ void BTreeNodeInsert(BTreeNode<KeyType>* node, KeyType key);
 template <typename KeyType>
 void BTreeInsert(BTree<KeyType>* tree, KeyType key);
 
-// ── Delete helpers ───────────────────────────────────────────────────────────
+// ── 删除辅助函数 ─────────────────────────────────────────────────────────────
 template <typename KeyType>
 bool BTreeNodeIsUnderFull(BTreeNode<KeyType>* node);
 
@@ -79,7 +78,7 @@ void BTreeNodeDelete(BTreeNode<KeyType>* node, KeyType key);
 template <typename KeyType>
 void BTreeDelete(BTree<KeyType>* tree, KeyType key);
 
-// ── Memory cleanup ───────────────────────────────────────────────────────────
+// ── 内存清理 ─────────────────────────────────────────────────────────────────
 template <typename KeyType>
 void BTreeNodeFree(BTreeNode<KeyType>* node);
 

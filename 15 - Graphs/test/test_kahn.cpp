@@ -5,16 +5,16 @@
 #include <set>
 #include <algorithm>
 
-// ── Validate topological order ──────────────────────────────────────────────
-// Every edge (u → v) must have u appearing before v in the sorted order.
+// ── 验证拓扑顺序 ───────────────────────────────────────────────────────────
+// 每条边 (u → v) 中，u 必须在排序结果中出现在 v 之前。
 static bool IsValidTopologicalOrder(const Graph& G, const std::vector<int>& order) {
-    // Build position map
+    // 构建位置映射
     std::vector<int> pos(G.num_nodes, -1);
     for (int i = 0; i < (int)order.size(); i++) {
         pos[order[i]] = i;
     }
     for (const Node& node : G.nodes) {
-        if (pos[node.id] == -1) continue;  // not in order (cycle)
+        if (pos[node.id] == -1) continue;  // 不在排序结果中（环）
         for (const Edge& e : node.edges) {
             if (pos[e.to_node] == -1) return false;
             if (pos[node.id] >= pos[e.to_node]) return false;
@@ -23,7 +23,7 @@ static bool IsValidTopologicalOrder(const Graph& G, const std::vector<int>& orde
     return true;
 }
 
-// ── Tests ────────────────────────────────────────────────────────────────────
+// ── 测试 ─────────────────────────────────────────────────────────────────────
 
 TEST(Kahn, SingleNode) {
     Graph G(1);
@@ -47,8 +47,8 @@ TEST(Kahn, LinearChain) {
 }
 
 TEST(Kahn, BookDAG) {
-    // Figure 15-10: nodes A(0) B(1) C(2) D(3) E(4) F(5)
-    // Edges: A→B, A→C, C→E, E→D, D→F, E→F
+    // 图 15-10：节点 A(0) B(1) C(2) D(3) E(4) F(5)
+    // 边：A→B, A→C, C→E, E→D, D→F, E→F
     Graph G(6);
     G.SetName(0, "A"); G.SetName(1, "B"); G.SetName(2, "C");
     G.SetName(3, "D"); G.SetName(4, "E"); G.SetName(5, "F");
@@ -64,7 +64,7 @@ TEST(Kahn, BookDAG) {
     ASSERT_EQ(sorted.size(), 6u);
     EXPECT_TRUE(IsValidTopologicalOrder(G, sorted));
 
-    // A must come first (only source)
+    // A 必须排在第一位（唯一的源点）
     EXPECT_EQ(sorted[0], 0);
 }
 
@@ -88,19 +88,19 @@ TEST(Kahn, DiamondDAG) {
 }
 
 TEST(Kahn, CycleDetection) {
-    // 0 → 1 → 2 → 0  (cycle)
+    // 0 → 1 → 2 → 0（环）
     Graph G(3);
     G.AddDirectedEdge(0, 1);
     G.AddDirectedEdge(1, 2);
     G.AddDirectedEdge(2, 0);
 
     auto sorted = Kahns(G);
-    // Cycle means not all nodes can be sorted
+    // 存在环意味着不是所有节点都能被排序
     EXPECT_LT(sorted.size(), 3u);
 }
 
 TEST(Kahn, DisconnectedDAG) {
-    // Two independent chains: 0→1  and  2→3
+    // 两条独立的链：0→1 和 2→3
     Graph G(4);
     G.AddDirectedEdge(0, 1);
     G.AddDirectedEdge(2, 3);
@@ -113,21 +113,21 @@ TEST(Kahn, DisconnectedDAG) {
 TEST(Kahn, NoEdges) {
     Graph G(3);
     auto sorted = Kahns(G);
-    // All nodes are sources — any permutation is valid
+    // 所有节点都是源点——任何排列都有效
     ASSERT_EQ(sorted.size(), 3u);
     std::set<int> ids(sorted.begin(), sorted.end());
     EXPECT_EQ(ids.size(), 3u);
 }
 
 TEST(Kahn, PartialCycle) {
-    // 0 → 1 → 2 → 1  (cycle on 1,2), node 0 has no incoming
+    // 0 → 1 → 2 → 1（1 和 2 构成环），节点 0 无入边
     Graph G(3);
     G.AddDirectedEdge(0, 1);
     G.AddDirectedEdge(1, 2);
     G.AddDirectedEdge(2, 1);
 
     auto sorted = Kahns(G);
-    // Only node 0 can be sorted; 1 and 2 are in a cycle
+    // 只有节点 0 能被排序；1 和 2 处于环中
     EXPECT_EQ(sorted.size(), 1u);
     EXPECT_EQ(sorted[0], 0);
 }

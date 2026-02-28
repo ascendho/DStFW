@@ -4,22 +4,22 @@
 #include <optional>
 #include <random>
 
-// ── Skip List ────────────────────────────────────────────────────────────────
-// A probabilistic sorted linked list with multi-level forward pointers.
-//   top_level  – highest level currently in use (0-based)
-//   max_level  – highest allowable level (inclusive)
-//   front      – dummy sentinel node (height == max_level); stores the
-//                head pointers for every level
+// ── 跳表 ──────────────────────────────────────────────────────────────────────
+// 一种基于概率的有序链表，具有多层前向指针。
+//   top_level  – 当前使用的最高层级（从 0 开始）
+//   max_level  – 允许的最高层级（含）
+//   front      – 虚拟哨兵节点（height == max_level）；存储每个层级的
+//                头指针
 template <typename KeyType, typename ValueType>
 struct SkipList {
     int                                  top_level;
     int                                  max_level;
     SkipListNode<KeyType, ValueType>*    front;
 
-    // Probability of promoting a node one additional level (default 0.5).
+    // 节点提升一个额外层级的概率（默认 0.5）。
     double p;
 
-    // RNG state
+    // 随机数生成器状态
     std::mt19937                         rng;
     std::uniform_real_distribution<>     dist;
 
@@ -32,7 +32,7 @@ struct SkipList {
     ~SkipList();
 };
 
-// ── Operations ───────────────────────────────────────────────────────────────
+// ── 操作 ──────────────────────────────────────────────────────────────────────
 template <typename KeyType, typename ValueType>
 std::optional<ValueType> SkipListSearch(SkipList<KeyType, ValueType>& list,
                                         const KeyType& target);
@@ -45,7 +45,7 @@ template <typename KeyType, typename ValueType>
 void SkipListDelete(SkipList<KeyType, ValueType>& list,
                     const KeyType& target);
 
-// ── Helper: pick a random level ──────────────────────────────────────────────
+// ── 辅助函数：选取随机层级 ────────────────────────────────────────────────────
 template <typename KeyType, typename ValueType>
 int SkipListRandomLevel(SkipList<KeyType, ValueType>& list);
 

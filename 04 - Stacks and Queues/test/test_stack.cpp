@@ -26,7 +26,7 @@ TEST(StackArrayTest, LIFOOrdering) {
 }
 
 TEST(StackArrayTest, ArrayDoubling) {
-    // initial capacity = 4; push more to trigger doubling
+    // 初始容量 = 4；多次入栈以触发倍增
     StackArray<int> s(4);
     for (int i = 0; i < 20; ++i) Push(s, i);
     for (int i = 19; i >= 0; --i) {
@@ -48,7 +48,7 @@ TEST(StackArrayTest, TopPeek) {
     EXPECT_EQ(Top(s), std::nullopt);
     Push(s, 7);
     EXPECT_EQ(Top(s), 7);
-    // Top does not remove the element
+    // Top 不会移除元素
     EXPECT_EQ(Top(s), 7);
 }
 
@@ -89,7 +89,7 @@ TEST(StackListTest, TopPeek) {
     EXPECT_EQ(Top(s), std::nullopt);
     Push(s, 5);
     EXPECT_EQ(Top(s), 5);
-    EXPECT_EQ(Top(s), 5);  // still there
+    EXPECT_EQ(Top(s), 5);  // 仍然存在
 }
 
 TEST(StackListTest, LargeNumberOfElements) {

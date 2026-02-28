@@ -23,18 +23,18 @@ inline float euclidean_dist(float x1, float y1, float x2, float y2) {
 inline float MinDistToBin(const Grid& g, int xbin, int ybin, float x, float y) {
     static const float INF = std::numeric_limits<float>::infinity();
 
-    // ❶ Validate bin indices
+    // ❶ 验证单元格索引
     if (xbin < 0 || xbin >= g.num_x_bins) return INF;
     if (ybin < 0 || ybin >= g.num_y_bins) return INF;
 
-    // ❷ x dimension distance
+    // ❷ x 维度距离
     float x_min = g.x_start + xbin       * g.x_bin_width;
     float x_max = g.x_start + (xbin + 1) * g.x_bin_width;
     float x_dist = 0.0f;
     if (x < x_min) x_dist = x_min - x;
     if (x > x_max) x_dist = x - x_max;
 
-    // ❸ y dimension distance
+    // ❸ y 维度距离
     float y_min = g.y_start + ybin       * g.y_bin_width;
     float y_max = g.y_start + (ybin + 1) * g.y_bin_width;
     float y_dist = 0.0f;
@@ -56,22 +56,22 @@ inline float MinDistToBin(const Grid& g, int xbin, int ybin, float x, float y) {
 inline GridPoint* GridLinearScanNN(const Grid& g, float x, float y) {
     static const float INF = std::numeric_limits<float>::infinity();
 
-    // ❶ Initialise best tracking
+    // ❶ 初始化最佳跟踪
     float      best_dist      = INF;
     GridPoint* best_candidate = nullptr;
 
     int xbin = 0;
-    // ❷ Iterate over all bins
+    // ❷ 遍历所有单元格
     while (xbin < g.num_x_bins) {
         int ybin = 0;
         while (ybin < g.num_y_bins) {
-            // ❸ Prune bins that cannot contain a closer neighbour
+            // ❸ 剪枝不可能包含更近邻居的单元格
             if (MinDistToBin(g, xbin, ybin, x, y) < best_dist) {
-                // ❹ Scan through the bin's linked list
+                // ❹ 扫描单元格的链表
                 GridPoint* current = g.bins[xbin][ybin];
                 while (current != nullptr) {
                     float dist = euclidean_dist(x, y, current->x, current->y);
-                    // ❺ Update best if closer
+                    // ❺ 若更近则更新最佳结果
                     if (dist < best_dist) {
                         best_dist      = dist;
                         best_candidate = current;
@@ -83,7 +83,7 @@ inline GridPoint* GridLinearScanNN(const Grid& g, float x, float y) {
         }
         xbin++;
     }
-    // ❻ Return nearest neighbour (nullptr if grid is empty)
+    // ❻ 返回最近邻（若网格为空则返回 nullptr）
     return best_candidate;
 }
 
@@ -97,18 +97,18 @@ inline GridPoint* GridLinearScanNN(const Grid& g, float x, float y) {
 // ❺ return best_candidate
 inline GridPoint* GridCheckBin(const Grid& g, int xbin, int ybin,
                                 float x, float y, float threshold) {
-    // ❶ Safety check on bin indices
+    // ❶ 单元格索引安全检查
     if (xbin < 0 || xbin >= g.num_x_bins) return nullptr;
     if (ybin < 0 || ybin >= g.num_y_bins) return nullptr;
 
     GridPoint* best_candidate = nullptr;
-    // ❷ Only accept points strictly closer than threshold
+    // ❷ 仅接受严格小于阈值距离的点
     float best_dist = threshold;
 
-    // ❸ Scan the bin
+    // ❸ 扫描单元格
     GridPoint* current = g.bins[xbin][ybin];
     while (current != nullptr) {
-        // ❹ Update if closer
+        // ❹ 若更近则更新
         float dist = euclidean_dist(x, y, current->x, current->y);
         if (dist < best_dist) {
             best_dist      = dist;
@@ -116,7 +116,7 @@ inline GridPoint* GridCheckBin(const Grid& g, int xbin, int ybin,
         }
         current = current->next;
     }
-    // ❺ Return closest point (nullptr if nothing was closer than threshold)
+    // ❺ 返回最近点（若没有比阈值更近的点则返回 nullptr）
     return best_candidate;
 }
 
@@ -135,7 +135,7 @@ inline GridPoint* GridSearchExpanding(const Grid& g, float x, float y) {
     float      best_d  = INF;
     GridPoint* best_pt = nullptr;
 
-    // ❶ Find the starting bin, clamped to valid range
+    // ❶ 找到起始单元格，限制在有效范围内
     int xb = static_cast<int>(std::floor((x - g.x_start) / g.x_bin_width));
     if (xb < 0)                  xb = 0;
     if (xb >= g.num_x_bins)      xb = g.num_x_bins - 1;
@@ -147,30 +147,30 @@ inline GridPoint* GridSearchExpanding(const Grid& g, float x, float y) {
     int  steps   = 0;
     bool explore = true;
 
-    // ❷ Expand outward one step at a time
+    // ❷ 逐步向外扩展
     while (explore) {
         explore = false;
 
-        // ❸ Iterate over x offsets from -steps to +steps
+        // ❸ 遍历从 -steps 到 +steps 的 x 偏移量
         int xoff = -steps;
         while (xoff <= steps) {
-            // ❹ The remaining steps for y (using Manhattan distance)
+            // ❹ y 方向的剩余步数（使用曼哈顿距离）
             int yoff = steps - std::abs(xoff);
 
-            // ❺ Check bin at (xb+xoff, yb-yoff)
+            // ❺ 检查 (xb+xoff, yb-yoff) 处的单元格
             if (MinDistToBin(g, xb + xoff, yb - yoff, x, y) < best_d) {
-                // ❻ Look for a closer point in that bin
+                // ❻ 在该单元格中查找更近的点
                 GridPoint* pt = GridCheckBin(g, xb + xoff, yb - yoff,
                                              x, y, best_d);
                 if (pt != nullptr) {
                     best_d  = euclidean_dist(x, y, pt->x, pt->y);
                     best_pt = pt;
                 }
-                // ❼ Mark that we should continue exploring
+                // ❼ 标记应继续探索
                 explore = true;
             }
 
-            // ❽ Check (xb+xoff, yb+yoff) only when yoff != 0 (avoid double-check)
+            // ❽ 仅当 yoff != 0 时检查 (xb+xoff, yb+yoff)（避免重复检查）
             if (yoff != 0 &&
                 MinDistToBin(g, xb + xoff, yb + yoff, x, y) < best_d) {
                 GridPoint* pt = GridCheckBin(g, xb + xoff, yb + yoff,
@@ -179,7 +179,7 @@ inline GridPoint* GridSearchExpanding(const Grid& g, float x, float y) {
                     best_d  = euclidean_dist(x, y, pt->x, pt->y);
                     best_pt = pt;
                 }
-                // ❾ Mark that we should continue exploring
+                // ❾ 标记应继续探索
                 explore = true;
             }
 

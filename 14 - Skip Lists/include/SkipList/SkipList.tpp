@@ -2,7 +2,7 @@
 
 #include "SkipList.hpp"
 
-// ── Destructor ───────────────────────────────────────────────────────────────
+// ── 析构函数 ──────────────────────────────────────────────────────────────────
 template <typename KeyType, typename ValueType>
 SkipList<KeyType, ValueType>::~SkipList() {
     SkipListNode<KeyType, ValueType>* cur = front;
@@ -14,8 +14,7 @@ SkipList<KeyType, ValueType>::~SkipList() {
 }
 
 // ── SkipListRandomLevel ──────────────────────────────────────────────────────
-// Pugh's approach: keep flipping a coin with probability p; count successes
-// up to max_level.
+// Pugh 的方法：以概率 p 持续抛硬币；统计成功次数，上限为 max_level。
 template <typename KeyType, typename ValueType>
 int SkipListRandomLevel(SkipList<KeyType, ValueType>& list) {
     int level = 0;
@@ -107,7 +106,7 @@ void SkipListInsert(SkipList<KeyType, ValueType>& list,
         list.top_level = new_level;
     }
 
-    // Create the new node
+    // 创建新节点
     auto* new_node = new SkipListNode<KeyType, ValueType>(key, value, new_level);
 
     // ❾ Splice into each level [0..new_level]

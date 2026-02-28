@@ -33,10 +33,10 @@ TEST(MaxHeapTest, RemovesInDecreasingOrder) {
 }
 
 TEST(MaxHeapTest, ArrayDoublingOnGrowth) {
-    // Start with small capacity (4), insert many elements
+    // 以较小容量（4）开始，插入大量元素
     Heap<int> h(4);
     for (int i = 1; i <= 30; ++i) HeapInsert(h, i);
-    // Should still extract correctly
+    // 仍应正确提取
     for (int i = 30; i >= 1; --i) {
         ASSERT_EQ(HeapRemoveMax(h), i);
     }
@@ -53,7 +53,7 @@ TEST(MaxHeapTest, DuplicateValues) {
 }
 
 TEST(MaxHeapTest, HeapProperty_ParentGeChild) {
-    // After inserting unsorted data, verify heap property at every node
+    // 插入无序数据后，验证每个节点的堆性质
     Heap<int> h;
     for (int v : {46, 35, 9, 28, 61, 8, 38, 40}) HeapInsert(h, v);
     for (int i = 2; i <= h.last_index; ++i) {
@@ -68,14 +68,14 @@ TEST(MaxHeapTest, HeapProperty_ParentGeChild) {
 TEST(MaxHeapTest, UpdateIncreaseValue) {
     Heap<int> h;
     for (int v : {10, 5, 8, 3, 2}) HeapInsert(h, v);
-    // Find index of value 3 (it's in the heap; let's find it)
+    // 查找值为 3 的索引（它在堆中；找到它）
     int idx = -1;
     for (int i = 1; i <= h.last_index; ++i)
         if (h.array[i] == 3) { idx = i; break; }
     ASSERT_GT(idx, 0);
-    UpdateMaxValue(h, idx, 20);  // raise 3 → 20 (should become new max)
+    UpdateMaxValue(h, idx, 20);  // 将 3 提升为 20（应成为新的最大值）
     EXPECT_EQ(HeapMax(h), 20);
-    // Heap property must still hold
+    // 堆性质必须仍然成立
     for (int i = 2; i <= h.last_index; ++i)
         EXPECT_GE(h.array[i / 2], h.array[i]);
 }
@@ -83,9 +83,9 @@ TEST(MaxHeapTest, UpdateIncreaseValue) {
 TEST(MaxHeapTest, UpdateDecreaseValue) {
     Heap<int> h;
     for (int v : {10, 5, 8, 3, 2}) HeapInsert(h, v);
-    // Decrease root (index 1) to 1
+    // 将根节点（索引 1）降低为 1
     UpdateMaxValue(h, 1, 1);
-    // Heap property must still hold
+    // 堆性质必须仍然成立
     for (int i = 2; i <= h.last_index; ++i)
         EXPECT_GE(h.array[i / 2], h.array[i]);
 }

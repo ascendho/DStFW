@@ -29,7 +29,7 @@ struct Grid {
     ~Grid();
 };
 
-// Threshold used by approx_equal for floating-point comparisons
+// approx_equal 用于浮点数比较的阈值
 static constexpr float APPROX_THRESHOLD = 1e-5f;
 
 bool approx_equal(float x1, float y1, float x2, float y2);

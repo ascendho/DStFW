@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-// ── Edge ─────────────────────────────────────────────────────────────────────
+// ── 边 ──────────────────────────────────────────────────────────────────────
 struct Edge {
     int   to_node;
     int   from_node;
@@ -13,7 +13,7 @@ struct Edge {
         : to_node(to), from_node(from), weight(w) {}
 };
 
-// ── Node ─────────────────────────────────────────────────────────────────────
+// ── 节点 ─────────────────────────────────────────────────────────────────────
 struct Node {
     std::string        name;
     int                id;
@@ -23,7 +23,7 @@ struct Node {
     Node(const std::string& name, int id) : name(name), id(id) {}
 };
 
-// ── Graph (adjacency-list representation) ────────────────────────────────────
+// ── 图（邻接表表示）─────────────────────────────────────────────────────────
 struct Graph {
     int                num_nodes;
     std::vector<Node>  nodes;
@@ -34,15 +34,15 @@ struct Graph {
         }
     }
 
-    // Convenience: name nodes
+    // 便捷方法：为节点命名
     void SetName(int id, const std::string& name) { nodes[id].name = name; }
 
-    // Add a directed edge
+    // 添加有向边
     void AddDirectedEdge(int from, int to, float weight = 1.0f) {
         nodes[from].edges.emplace_back(from, to, weight);
     }
 
-    // Add an undirected edge (two directed edges)
+    // 添加无向边（两条有向边）
     void AddUndirectedEdge(int a, int b, float weight = 1.0f) {
         nodes[a].edges.emplace_back(a, b, weight);
         nodes[b].edges.emplace_back(b, a, weight);

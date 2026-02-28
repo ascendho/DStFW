@@ -3,7 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
-// ─── QuadTreeNode constructor/destructor ──────────────────────────────────────
+// ─── QuadTreeNode 构造函数/析构函数 ──────────────────────────────────────────
 inline QuadTreeNode::QuadTreeNode(float x_min_, float x_max_,
                                    float y_min_, float y_max_)
     : is_leaf(true), num_points(0),
@@ -22,7 +22,7 @@ inline QuadTreeNode::~QuadTreeNode() {
         }
 }
 
-// ─── QuadTree constructor/destructor ─────────────────────────────────────────
+// ─── QuadTree 构造函数/析构函数 ──────────────────────────────────────────────
 inline QuadTree::QuadTree(float x_min, float x_max, float y_min, float y_max)
     : root(new QuadTreeNode(x_min, x_max, y_min, y_max))
 {}
@@ -32,7 +32,7 @@ inline QuadTree::~QuadTree() {
 }
 
 // ─── qt_approx_equal ──────────────────────────────────────────────────────────
-// Reuse approx_equal logic from Chapter 8 (Listing 8-3)
+// 复用第八章的 approx_equal 逻辑（代码清单 8-3）
 static constexpr float QT_EPS = 1e-5f;
 
 inline bool qt_approx_equal(float x1, float y1, float x2, float y2) {
@@ -73,10 +73,10 @@ inline float MinDist(const QuadTreeNode* node, float x, float y) {
 // ❸ node.is_leaf = True
 // ❹ return node.points
 inline std::vector<Point> QuadTreeNodeCollapse(QuadTreeNode* node) {
-    // ❶ Already a leaf: return points as-is
+    // ❶ 已是叶节点：直接返回点集
     if (node->is_leaf) return node->points;
 
-    // ❷ Collect all points from children
+    // ❷ 从子节点收集所有点
     for (int i = 0; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
             if (node->children[i][j] != nullptr) {
@@ -89,9 +89,9 @@ inline std::vector<Point> QuadTreeNodeCollapse(QuadTreeNode* node) {
             }
         }
     }
-    // ❸ Mark as leaf
+    // ❸ 标记为叶节点
     node->is_leaf = true;
-    // ❹ Return collected points
+    // ❹ 返回收集的点
     return node->points;
 }
 
@@ -120,23 +120,23 @@ inline bool QuadTreeInsert(QuadTree& tree, float x, float y) {
 // ❼     FOR EACH pt IN node.points: QuadTreeNodeInsert(node, pt.x, pt.y)
 // ❽     node.num_points -= length(node.points); node.points = []
 inline void QuadTreeNodeInsert(QuadTreeNode* node, float x, float y) {
-    // ❶ Increment total count
+    // ❶ 递增总计数
     node->num_points++;
 
-    // ❷ Determine child bin
+    // ❷ 确定子区间
     float x_bin_size = (node->x_max - node->x_min) / 2.0f;
     float y_bin_size = (node->y_max - node->y_min) / 2.0f;
     int xbin = static_cast<int>(std::floor((x - node->x_min) / x_bin_size));
     int ybin = static_cast<int>(std::floor((y - node->y_min) / y_bin_size));
-    // Clamp to [0, 1] for edge/exactly-on-boundary cases
+    // 将值截断到 [0, 1] 以处理边界情况
     if (xbin < 0) xbin = 0;
     if (xbin > 1) xbin = 1;
     if (ybin < 0) ybin = 0;
     if (ybin > 1) ybin = 1;
 
-    // ❸ Internal node: recurse into the correct child
+    // ❸ 内部节点：递归进入正确的子节点
     if (!node->is_leaf) {
-        // ❹ Create child if it doesn't exist yet
+        // ❹ 如果子节点尚不存在则创建
         if (node->children[xbin][ybin] == nullptr) {
             node->children[xbin][ybin] = new QuadTreeNode(
                 node->x_min + xbin       * x_bin_size,
@@ -148,19 +148,19 @@ inline void QuadTreeNodeInsert(QuadTreeNode* node, float x, float y) {
         return;
     }
 
-    // ❺ Leaf node: add point directly
+    // ❺ 叶节点：直接添加点
     node->points.push_back(Point(x, y));
 
-    // ❻ Check whether we should split
+    // ❻ 检查是否应该分割
     if (qt_should_split(node)) {
         node->is_leaf = false;
 
-        // ❼ Re-insert all current leaf points into the now-internal node
+        // ❼ 将当前叶节点的所有点重新插入到现在的内部节点中
         std::vector<Point> old_points = node->points;
         node->points.clear();
 
-        // ❽ Correct num_points: each call below increments it again for
-        //    the same points already counted, so subtract the count.
+        // ❽ 修正 num_points：下面的每次调用会再次递增已计数的
+        //    相同点，因此减去该计数。
         node->num_points -= static_cast<int>(old_points.size());
 
         for (const auto& pt : old_points) {
@@ -194,12 +194,12 @@ inline bool QuadTreeDelete(QuadTree& tree, float x, float y) {
 //       return True
 // ❾ return False
 inline bool QuadTreeNodeDelete(QuadTreeNode* node, float x, float y) {
-    // ❶ Leaf: search the points list
+    // ❶ 叶节点：搜索点列表
     if (node->is_leaf) {
         int i = 0;
-        // ❷ Iterate through points
+        // ❷ 遍历点集
         while (i < static_cast<int>(node->points.size())) {
-            // ❸ Approximate equality check
+            // ❸ 近似相等检查
             if (qt_approx_equal(node->points[i].x, node->points[i].y, x, y)) {
                 node->points.erase(node->points.begin() + i);
                 node->num_points--;
@@ -210,7 +210,7 @@ inline bool QuadTreeNodeDelete(QuadTreeNode* node, float x, float y) {
         return false;
     }
 
-    // ❹ Internal: compute which child bin the point would fall into
+    // ❹ 内部节点：计算点应落入哪个子区间
     float x_bin_size = (node->x_max - node->x_min) / 2.0f;
     float y_bin_size = (node->y_max - node->y_min) / 2.0f;
     int xbin = static_cast<int>(std::floor((x - node->x_min) / x_bin_size));
@@ -220,26 +220,26 @@ inline bool QuadTreeNodeDelete(QuadTreeNode* node, float x, float y) {
     if (ybin < 0) ybin = 0;
     if (ybin > 1) ybin = 1;
 
-    // ❺ Child doesn't exist: point not in tree
+    // ❺ 子节点不存在：点不在树中
     if (node->children[xbin][ybin] == nullptr) return false;
 
-    // ❻ Recurse into child
+    // ❻ 递归进入子节点
     if (QuadTreeNodeDelete(node->children[xbin][ybin], x, y)) {
         node->num_points--;
 
-        // ❼ Remove empty child
+        // ❼ 移除空子节点
         if (node->children[xbin][ybin]->num_points == 0) {
             delete node->children[xbin][ybin];
             node->children[xbin][ybin] = nullptr;
         }
 
-        // ❽ Collapse if node no longer meets split conditions
+        // ❽ 如果节点不再满足分割条件则合并
         if (node->num_points <= QUAD_MAX_LEAF_POINTS) {
             node->points = QuadTreeNodeCollapse(node);
         }
         return true;
     }
-    // ❾ Point not found in subtree
+    // ❾ 在子树中未找到该点
     return false;
 }
 
@@ -267,12 +267,12 @@ inline Point* QuadTreeNearestNeighbor(QuadTree& tree, float x, float y) {
 // ❺   return best_candidate
 inline Point* QuadTreeNodeNearestNeighbor(QuadTreeNode* node, float x, float y,
                                            float& best_dist) {
-    // ❶ Prune: node is too far away
+    // ❶ 剪枝：节点距离太远
     if (MinDist(node, x, y) >= best_dist) return nullptr;
 
     Point* best_candidate = nullptr;
 
-    // ❷ Leaf: scan all points directly
+    // ❷ 叶节点：直接扫描所有点
     if (node->is_leaf) {
         for (auto& current : node->points) {
             float dx   = x - current.x;
@@ -286,7 +286,7 @@ inline Point* QuadTreeNodeNearestNeighbor(QuadTreeNode* node, float x, float y,
         return best_candidate;
     }
 
-    // ❸ Internal: compute which child we're closest to (xbin, ybin in [0,1])
+    // ❸ 内部节点：计算最近的子节点（xbin、ybin 取值 [0,1]）
     float x_bin_size = (node->x_max - node->x_min) / 2.0f;
     float y_bin_size = (node->y_max - node->y_min) / 2.0f;
     int xbin = static_cast<int>(std::floor((x - node->x_min) / x_bin_size));
@@ -296,7 +296,7 @@ inline Point* QuadTreeNodeNearestNeighbor(QuadTreeNode* node, float x, float y,
     if (ybin < 0) ybin = 0;
     if (ybin > 1) ybin = 1;
 
-    // ❹ Search children: closest quadrant first, then the other three
+    // ❹ 搜索子节点：先搜索最近的象限，然后搜索其他三个
     int xi_order[2] = { xbin, (xbin + 1) % 2 };
     int yi_order[2] = { ybin, (ybin + 1) % 2 };
 
@@ -305,10 +305,10 @@ inline Point* QuadTreeNodeNearestNeighbor(QuadTreeNode* node, float x, float y,
             if (node->children[i][j] != nullptr) {
                 Point* quad_best = QuadTreeNodeNearestNeighbor(
                     node->children[i][j], x, y, best_dist);
-                // ❺ Update best if we found something closer
+                // ❺ 如果找到更近的点则更新最优解
                 if (quad_best != nullptr) {
                     best_candidate = quad_best;
-                    // best_dist already updated inside the recursive call
+                    // best_dist 已在递归调用中更新
                 }
             }
         }

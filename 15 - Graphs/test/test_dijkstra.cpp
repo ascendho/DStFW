@@ -7,12 +7,12 @@
 
 static constexpr float INF = std::numeric_limits<float>::infinity();
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── 辅助函数 ────────────────────────────────────────────────────────────────
 static bool ApproxEq(float a, float b, float eps = 1e-4f) {
     return std::fabs(a - b) < eps;
 }
 
-// ── Build the book's weighted undirected graph (Figure 15-4) ─────────────────
+// ── 构建书中的加权无向图（图 15-4）─────────────────────────────────────────
 //   Nodes: A(0) B(1) C(2) D(3) E(4) F(5) G(6) H(7)
 //   Edges: A-B:1.5  A-C:0.5  A-D:0.5  B-F:1.1  C-E:0.5
 //          C-G:2.5  D-E:0.4  D-F:0.3  F-H:0.9
@@ -34,7 +34,7 @@ static Graph BookGraph() {
     return G;
 }
 
-// ── Tests ────────────────────────────────────────────────────────────────────
+// ── 测试 ─────────────────────────────────────────────────────────────────────
 
 TEST(Dijkstra, SingleNode) {
     Graph G(1);
@@ -55,7 +55,7 @@ TEST(Dijkstra, TwoNodesDirected) {
 TEST(Dijkstra, UnreachableNode) {
     Graph G(3);
     G.AddDirectedEdge(0, 1, 1.0f);
-    // Node 2 is unreachable
+    // 节点 2 不可达
     auto res = Dijkstras(G, 0);
     EXPECT_TRUE(ApproxEq(res.distance[1], 1.0f));
     EXPECT_EQ(res.distance[2], INF);
@@ -65,7 +65,7 @@ TEST(Dijkstra, BookGraphDistancesFromA) {
     Graph G = BookGraph();
     auto res = Dijkstras(G, 0);
 
-    // Expected shortest distances from A(0):
+    // 从 A(0) 出发的预期最短距离：
     // A=0  B=1.5  C=0.5  D=0.5  E=0.9  F=0.8  G=3.0  H=1.7
     EXPECT_TRUE(ApproxEq(res.distance[0], 0.0f));
     EXPECT_TRUE(ApproxEq(res.distance[1], 1.5f));
@@ -80,7 +80,7 @@ TEST(Dijkstra, BookGraphDistancesFromA) {
 TEST(Dijkstra, BookGraphPathToH) {
     Graph G = BookGraph();
     auto res = Dijkstras(G, 0);
-    auto path = DijkstraPath(res, 7);  // path to H
+    auto path = DijkstraPath(res, 7);  // 到 H 的路径
     // A(0) → D(3) → F(5) → H(7)
     ASSERT_EQ(path.size(), 4u);
     EXPECT_EQ(path[0], 0);
@@ -107,8 +107,8 @@ TEST(Dijkstra, PathToSelf) {
 }
 
 TEST(Dijkstra, ChoosesShorterPath) {
-    // 0 ->1  weight 10
-    // 0 ->2  weight 1,  2 ->1 weight 2  (total 3, better)
+    // 0 ->1 权重 10
+    // 0 ->2 权重 1，2 ->1 权重 2（总计 3，更优）
     Graph G(3);
     G.AddDirectedEdge(0, 1, 10.0f);
     G.AddDirectedEdge(0, 2, 1.0f);

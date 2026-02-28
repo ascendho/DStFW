@@ -24,7 +24,7 @@ void MinHeapInsert(Heap<T>& heap, const T& value) {
 
     int current = heap.last_index;
     int parent  = current / 2;
-    // 1 Min-heap: bubble up when parent > current
+    // 1 最小堆：当父节点 > 当前节点时上浮
     while (parent >= 1 &&
            heap.array[static_cast<std::size_t>(parent)] >
            heap.array[static_cast<std::size_t>(current)]) {
@@ -69,13 +69,13 @@ std::optional<T> MinHeapRemoveMin(Heap<T>& heap) {
     int i = 1;
     while (i <= heap.last_index) {
         int swap_idx = i;
-        // 1 Check left child — swap toward smaller
+        // 1 检查左子节点 — 向较小值交换
         if (2 * i <= heap.last_index &&
             heap.array[static_cast<std::size_t>(swap_idx)] >
             heap.array[static_cast<std::size_t>(2 * i)]) {
             swap_idx = 2 * i;
         }
-        // 2 Check right child
+        // 2 检查右子节点
         if (2 * i + 1 <= heap.last_index &&
             heap.array[static_cast<std::size_t>(swap_idx)] >
             heap.array[static_cast<std::size_t>(2 * i + 1)]) {

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "Heapsort/Heapsort.hpp"
 
-// ─── Heapsort (decreasing) ────────────────────────────────────────────────────
+// ─── 堆排序（降序） ──────────────────────────────────────────────────────────
 
 TEST(HeapsortTest, SortsDecreasing) {
     std::vector<int> v{46, 35, 9, 28, 61, 8, 38, 40};
@@ -44,7 +44,7 @@ TEST(HeapsortTest, DuplicateValues) {
     EXPECT_EQ(result, expected);
 }
 
-// ─── HeapsortAsc (increasing, min heap) ──────────────────────────────────────
+// ─── HeapsortAsc（升序，最小堆） ──────────────────────────────────────────────
 
 TEST(HeapsortAscTest, SortsIncreasing) {
     std::vector<int> v{46, 35, 9, 28, 61, 8, 38, 40};

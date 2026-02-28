@@ -51,7 +51,7 @@ void LinkedListInsertAfter(LinkedListNode<T>* previous, LinkedListNode<T>* new_n
 //  5  return head
 template<typename T>
 LinkedListNode<T>* LinkedListInsert(LinkedListNode<T>* head, int index, const T& value) {
-    // 1 Special case: insert at front
+    // 1 特殊情况：在头部插入
     if (index == 0) {
         LinkedListNode<T>* new_head = new LinkedListNode<T>(value);
         new_head->next = head;
@@ -62,24 +62,24 @@ LinkedListNode<T>* LinkedListInsert(LinkedListNode<T>* head, int index, const T&
     LinkedListNode<T>* previous = nullptr;
     int count = 0;
 
-    // 2 Traverse to find the insertion point
+    // 2 遍历找到插入位置
     while (count < index && current != nullptr) {
         previous = current;
         current = current->next;
         count = count + 1;
     }
 
-    // 3 Check whether we ran off the end before reaching index
+    // 3 检查在到达 index 之前是否已经越过末尾
     if (count < index) {
         throw std::out_of_range("LinkedListInsert: index out of range");
     }
 
-    // 4 Splice in the new node
+    // 4 拼接新节点
     LinkedListNode<T>* new_node = new LinkedListNode<T>(value);
     new_node->next = previous->next;
     previous->next = new_node;
 
-    // 5 Return the (unchanged) head
+    // 5 返回（未改变的）链表头
     return head;
 }
 
@@ -106,12 +106,12 @@ LinkedListNode<T>* LinkedListInsert(LinkedListNode<T>* head, int index, const T&
 //  7  return head
 template<typename T>
 LinkedListNode<T>* LinkedListDelete(LinkedListNode<T>* head, int index) {
-    // 1 Empty list
+    // 1 空链表
     if (head == nullptr) {
         return nullptr;
     }
 
-    // 2 Delete head node
+    // 2 删除头节点
     if (index == 0) {
         LinkedListNode<T>* new_head = head->next;
         head->next = nullptr;
@@ -123,14 +123,14 @@ LinkedListNode<T>* LinkedListDelete(LinkedListNode<T>* head, int index) {
     LinkedListNode<T>* previous = nullptr;
     int count = 0;
 
-    // 3 Traverse to find the node to delete
+    // 3 遍历查找要删除的节点
     while (count < index && current != nullptr) {
         previous = current;
         current = current->next;
         count = count + 1;
     }
 
-    // 4 Splice out the node if found
+    // 4 如果找到，将节点从链表中移除
     if (current != nullptr) {
         previous->next = current->next;  // 5
         current->next = nullptr;          // 6
@@ -139,6 +139,6 @@ LinkedListNode<T>* LinkedListDelete(LinkedListNode<T>* head, int index) {
         throw std::out_of_range("LinkedListDelete: index out of range");
     }
 
-    // 7 Return head
+    // 7 返回链表头
     return head;
 }

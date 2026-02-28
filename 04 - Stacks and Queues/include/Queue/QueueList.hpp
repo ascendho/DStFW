@@ -2,11 +2,11 @@
 #include <optional>
 #include "LLNode.hpp"
 
-// Queue implemented as a singly linked list.
-// front → head of the list (oldest element)
-// back  → tail of the list (newest element)
+// 基于单链表实现的队列。
+// front → 链表头（最早的元素）
+// back  → 链表尾（最新的元素）
 //
-// Pseudocode (linked list–based):
+// 伪代码（基于链表）：
 //   Queue {
 //       LinkedListNode: front
 //       LinkedListNode: back
@@ -41,15 +41,15 @@ struct QueueList {
     }
 };
 
-// Enqueue(Queue: q, Type: value)
+// 入队（Enqueue）
 template<typename T>
 void Enqueue(QueueList<T>& q, const T& value);
 
-// Dequeue(Queue: q) -> returns the front value, or std::nullopt if empty
+// 出队（Dequeue）—— 返回队首值，空队列时返回 std::nullopt
 template<typename T>
 std::optional<T> Dequeue(QueueList<T>& q);
 
-// Peek at the front value without removing it
+// 查看队首值但不移除
 template<typename T>
 std::optional<T> Front(const QueueList<T>& q);
 

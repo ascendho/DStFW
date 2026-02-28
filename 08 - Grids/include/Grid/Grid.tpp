@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstdlib>
 
-// ─── Constructor ─────────────────────────────────────────────────────────────
+// ─── 构造函数 ───────────────────────────────────────────────────────────────
 // x_bin_width = (x_end – x_start) / num_x_bins
 // y_bin_width = (y_end – y_start) / num_y_bins
 inline Grid::Grid(int nx, int ny, float xs, float xe, float ys, float ye)
@@ -15,7 +15,7 @@ inline Grid::Grid(int nx, int ny, float xs, float xe, float ys, float ye)
       bins(nx, std::vector<GridPoint*>(ny, nullptr))
 {}
 
-// ─── Destructor ───────────────────────────────────────────────────────────────
+// ─── 析构函数 ────────────────────────────────────────────────────────────────
 inline Grid::~Grid() {
     for (int xi = 0; xi < num_x_bins; ++xi) {
         for (int yi = 0; yi < num_y_bins; ++yi) {
@@ -51,20 +51,20 @@ inline bool approx_equal(float x1, float y1, float x2, float y2) {
 //    g.bins[xbin][ybin].next = next_point
 // ❹ return True
 inline bool GridInsert(Grid& g, float x, float y) {
-    // ❶ Compute bin indices
+    // ❶ 计算单元格索引
     int xbin = static_cast<int>(std::floor((x - g.x_start) / g.x_bin_width));
     int ybin = static_cast<int>(std::floor((y - g.y_start) / g.y_bin_width));
 
-    // ❷ Check that the point is within the grid
+    // ❷ 检查点是否在网格范围内
     if (xbin < 0 || xbin >= g.num_x_bins) return false;
     if (ybin < 0 || ybin >= g.num_y_bins) return false;
 
-    // ❸ Prepend new point to front of the bin's linked list
+    // ❸ 将新点插入到单元格链表的头部
     GridPoint* new_point = new GridPoint(x, y);
     new_point->next = g.bins[xbin][ybin];
     g.bins[xbin][ybin] = new_point;
 
-    // ❹ Return success
+    // ❹ 返回成功
     return true;
 }
 
@@ -85,24 +85,24 @@ inline bool GridInsert(Grid& g, float x, float y) {
 // ❼     previous = current; current = current.next
 //    return False
 inline bool GridDelete(Grid& g, float x, float y) {
-    // ❶ Compute bin indices
+    // ❶ 计算单元格索引
     int xbin = static_cast<int>(std::floor((x - g.x_start) / g.x_bin_width));
     int ybin = static_cast<int>(std::floor((y - g.y_start) / g.y_bin_width));
 
-    // ❷ Check that the point is within the grid
+    // ❷ 检查点是否在网格范围内
     if (xbin < 0 || xbin >= g.num_x_bins) return false;
     if (ybin < 0 || ybin >= g.num_y_bins) return false;
 
-    // ❸ Check if the bin is empty
+    // ❸ 检查单元格是否为空
     if (g.bins[xbin][ybin] == nullptr) return false;
 
-    // ❹ Traverse the linked list to find the first matching point
+    // ❹ 遍历链表以查找第一个匹配的点
     GridPoint* current  = g.bins[xbin][ybin];
     GridPoint* previous = nullptr;
     while (current != nullptr) {
-        // ❺ Test approximate equality
+        // ❺ 测试近似相等
         if (approx_equal(x, y, current->x, current->y)) {
-            // ❻ Splice the node out of the list
+            // ❻ 将节点从链表中移除
             if (previous == nullptr) {
                 g.bins[xbin][ybin] = current->next;
             } else {
@@ -111,7 +111,7 @@ inline bool GridDelete(Grid& g, float x, float y) {
             delete current;
             return true;
         }
-        // ❼ Advance to next node
+        // ❼ 前进到下一个节点
         previous = current;
         current  = current->next;
     }

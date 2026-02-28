@@ -4,9 +4,9 @@
 #include <random>
 #include "BTree/BTree.hpp"
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── 辅助函数 ─────────────────────────────────────────────────────────────────
 
-// Collect all keys in sorted order via in-order traversal
+// 通过中序遍历按排序顺序收集所有键
 static void InOrder(BTreeNode<int>* node, std::vector<int>& out) {
     if (!node) return;
     for (int i = 0; i < node->size; i++) {
@@ -22,19 +22,19 @@ static std::vector<int> AllKeys(BTree<int>* tree) {
     return keys;
 }
 
-// Validate B-tree invariants:
-//   - leaf depth is uniform
-//   - non-root nodes satisfy k <= size <= 2k
-//   - root satisfies 0 <= size <= 2k
-//   - keys within each node are sorted
-//   - returns the leaf depth (all leaves must be equal)
+// 验证 B 树不变量：
+//   - 叶节点深度一致
+//   - 非根节点满足 k <= size <= 2k
+//   - 根节点满足 0 <= size <= 2k
+//   - 每个节点内的键有序
+//   - 返回叶节点深度（所有叶节点深度必须相等）
 static int ValidateNode(BTreeNode<int>* node, bool is_root, int depth) {
-    // Key-order within node
+    // 节点内键的顺序
     for (int i = 0; i + 1 < node->size; i++) {
         EXPECT_LT(node->keys[i], node->keys[i + 1])
             << "Node keys out of order at depth " << depth;
     }
-    // Size bounds
+    // 大小限制
     if (!is_root) {
         EXPECT_GE(node->size, node->k) << "Node underfull at depth " << depth;
     }
@@ -58,7 +58,7 @@ static void Validate(BTree<int>* tree) {
     ValidateNode(tree->root, true, 0);
 }
 
-// ── Search Tests ─────────────────────────────────────────────────────────────
+// ── 搜索测试 ─────────────────────────────────────────────────────────────────
 
 TEST(BTreeSearch, EmptyTree) {
     BTree<int> tree(2);
@@ -88,10 +88,10 @@ TEST(BTreeSearch, MultipleElements) {
     BTreeFree(&tree);
 }
 
-// ── Insert Tests ─────────────────────────────────────────────────────────────
+// ── 插入测试 ─────────────────────────────────────────────────────────────────
 
 TEST(BTreeInsert, InsertNoSplit) {
-    // k=2: leaf can hold up to 4 keys without any split
+    // k=2：叶节点最多可容纳 4 个键而无需分割
     BTree<int> tree(2);
     BTreeInsert(&tree, 10);
     BTreeInsert(&tree, 20);
@@ -104,7 +104,7 @@ TEST(BTreeInsert, InsertNoSplit) {
 }
 
 TEST(BTreeInsert, InsertLeafSplit) {
-    // k=2: inserting the 5th key triggers a leaf split
+    // k=2：插入第 5 个键会触发叶节点分割
     BTree<int> tree(2);
     for (int v : {10, 20, 30, 40, 50}) BTreeInsert(&tree, v);
     EXPECT_FALSE(tree.root->is_leaf);
@@ -116,7 +116,7 @@ TEST(BTreeInsert, InsertLeafSplit) {
 }
 
 TEST(BTreeInsert, InsertRootSplit) {
-    // Force the root itself to split by inserting enough keys
+    // 通过插入足够多的键迫使根节点本身分割
     BTree<int> tree(2);
     for (int i = 1; i <= 15; i++) BTreeInsert(&tree, i);
     Validate(&tree);
@@ -173,7 +173,7 @@ TEST(BTreeInsert, InsertRandomOrder) {
 }
 
 TEST(BTreeInsert, TreeWithK1) {
-    // k=1: nodes hold 1–2 keys (a 2-3 tree)
+    // k=1：节点保存 1–2 个键（2-3 树）
     BTree<int> tree(1);
     for (int i = 1; i <= 20; i++) BTreeInsert(&tree, i);
     Validate(&tree);
@@ -182,7 +182,7 @@ TEST(BTreeInsert, TreeWithK1) {
     BTreeFree(&tree);
 }
 
-// ── Delete Tests ─────────────────────────────────────────────────────────────
+// ── 删除测试 ─────────────────────────────────────────────────────────────────
 
 TEST(BTreeDelete, DeleteFromLeafNoRepair) {
     BTree<int> tree(2);
@@ -196,7 +196,7 @@ TEST(BTreeDelete, DeleteFromLeafNoRepair) {
 TEST(BTreeDelete, DeleteFromInternalNode) {
     BTree<int> tree(2);
     for (int v : {10, 20, 30, 40, 50, 60, 70}) BTreeInsert(&tree, v);
-    // Force internal key deletion
+    // 强制内部节点键删除
     BTreeDelete(&tree, 30);
     EXPECT_FALSE(BTreeSearch(&tree, 30).has_value());
     Validate(&tree);
@@ -206,7 +206,7 @@ TEST(BTreeDelete, DeleteFromInternalNode) {
 TEST(BTreeDelete, DeleteRequiresMerge) {
     BTree<int> tree(2);
     for (int i = 1; i <= 10; i++) BTreeInsert(&tree, i);
-    // Delete keys until a merge is triggered
+    // 删除键直到触发合并
     for (int v : {1, 2, 3}) {
         BTreeDelete(&tree, v);
         EXPECT_FALSE(BTreeSearch(&tree, v).has_value());
@@ -217,7 +217,7 @@ TEST(BTreeDelete, DeleteRequiresMerge) {
 
 TEST(BTreeDelete, DeleteRequiresTransfer) {
     BTree<int> tree(2);
-    // Build a tree where one sibling will be rich enough to transfer
+    // 构建一棵树，使得某个兄弟节点有足够多的键来转移
     for (int i = 1; i <= 20; i++) BTreeInsert(&tree, i);
     BTreeDelete(&tree, 1);
     BTreeDelete(&tree, 2);
@@ -230,7 +230,7 @@ TEST(BTreeDelete, DeleteRequiresTransfer) {
 TEST(BTreeDelete, DeleteNonExistentKey) {
     BTree<int> tree(2);
     for (int v : {1, 2, 3, 4, 5}) BTreeInsert(&tree, v);
-    BTreeDelete(&tree, 99); // no-op
+    BTreeDelete(&tree, 99); // 无操作
     Validate(&tree);
     auto keys = AllKeys(&tree);
     EXPECT_EQ(keys, (std::vector<int>{1, 2, 3, 4, 5}));
@@ -238,12 +238,12 @@ TEST(BTreeDelete, DeleteNonExistentKey) {
 }
 
 TEST(BTreeDelete, DeleteRootCollapses) {
-    // k=2; insert just enough to get exactly two children under root,
-    // then delete all but one key to force root collapse
+    // k=2；插入刚好足够的键使根节点恰好有两个子节点，
+    // 然后删除除一个键以外的所有键以迫使根节点坍缩
     BTree<int> tree(2);
     for (int i = 1; i <= 5; i++) BTreeInsert(&tree, i);
     for (int i = 1; i <= 4; i++) BTreeDelete(&tree, i);
-    // Root should now collapse to a single leaf
+    // 根节点现在应坍缩为单个叶节点
     EXPECT_TRUE(tree.root->is_leaf);
     Validate(&tree);
     BTreeFree(&tree);
@@ -279,13 +279,13 @@ TEST(BTreeDelete, DeleteLargeRandomSet) {
 TEST(BTreeDelete, InterleavedInsertDelete) {
     BTree<int> tree(2);
     for (int i = 1; i <= 30; i++) BTreeInsert(&tree, i);
-    for (int i = 1; i <= 30; i += 2) BTreeDelete(&tree, i); // delete odds
+    for (int i = 1; i <= 30; i += 2) BTreeDelete(&tree, i); // 删除奇数
     Validate(&tree);
     auto keys = AllKeys(&tree);
     std::vector<int> evens;
     for (int i = 2; i <= 30; i += 2) evens.push_back(i);
     EXPECT_EQ(keys, evens);
-    // Re-insert deleted odds
+    // 重新插入已删除的奇数
     for (int i = 1; i <= 30; i += 2) BTreeInsert(&tree, i);
     Validate(&tree);
     keys = AllKeys(&tree);
@@ -295,7 +295,7 @@ TEST(BTreeDelete, InterleavedInsertDelete) {
     BTreeFree(&tree);
 }
 
-// ── FindMin Tests ─────────────────────────────────────────────────────────────
+// ── 查找最小值测试 ───────────────────────────────────────────────────────────
 
 TEST(BTreeFindMin, FindMinAfterInserts) {
     BTree<int> tree(2);

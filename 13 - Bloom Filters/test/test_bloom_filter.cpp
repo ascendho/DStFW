@@ -5,7 +5,7 @@
 #include <random>
 #include "BloomFilter/BloomFilter.hpp"
 
-// ── Construction ──────────────────────────────────────────────────────────────
+// ── 构造 ──────────────────────────────────────────────────────────────────────
 
 TEST(BloomFilterConstruct, DefaultBinsAreZero) {
     BloomFilter<int> bf(100, 3);
@@ -22,7 +22,7 @@ TEST(BloomFilterConstruct, HashFunctionsCreated) {
     EXPECT_EQ((int)bf.h.size(), 5);
 }
 
-// ── Lookup on Empty Filter ────────────────────────────────────────────────────
+// ── 空过滤器上的查找 ──────────────────────────────────────────────────────────
 
 TEST(BloomFilterLookup, EmptyFilterReturnsFalse) {
     BloomFilter<int> bf(256, 3);
@@ -37,7 +37,7 @@ TEST(BloomFilterLookup, EmptyStringFilter) {
     EXPECT_FALSE(BloomFilterLookup(bf, std::string("world")));
 }
 
-// ── No False Negatives ────────────────────────────────────────────────────────
+// ── 无假阴性 ──────────────────────────────────────────────────────────────────
 
 TEST(BloomFilterInsert, InsertedKeyAlwaysFound) {
     BloomFilter<int> bf(1000, 3);
@@ -71,23 +71,23 @@ TEST(BloomFilterInsert, NoFalseNegativesLargeSet) {
     }
 }
 
-// ── Single Insertion ─────────────────────────────────────────────────────────
+// ── 单次插入 ──────────────────────────────────────────────────────────────────
 
 TEST(BloomFilterInsert, SingleInsert) {
     BloomFilter<int> bf(256, 3);
     BloomFilterInsertKey(bf, 42);
     EXPECT_TRUE(BloomFilterLookup(bf, 42));
-    // Count how many bins were set — should be at most k=3
+    // 统计设置了多少个槽位 ── 最多应为 k=3
     int count = 0;
     for (int i = 0; i < bf.size; i++) if (bf.bins[i]) count++;
     EXPECT_LE(count, bf.k);
 }
 
-// ── Bins Set Correctly ───────────────────────────────────────────────────────
+// ── 槽位正确设置 ──────────────────────────────────────────────────────────────
 
 TEST(BloomFilterInsert, ExactlyKBinsSetPerInsert) {
-    // With a large enough filter, inserts of one key should set
-    // at most k distinct bins (possibly fewer if hash collision among fns)
+    // 过滤器足够大时，插入一个键最多应设置 k 个不同的槽位
+    //（如果哈希函数之间发生碰撞，则可能更少）
     BloomFilter<std::string> bf(10000, 3);
     BloomFilterInsertKey(bf, std::string("test_key"));
     int count = 0;
@@ -96,16 +96,16 @@ TEST(BloomFilterInsert, ExactlyKBinsSetPerInsert) {
     EXPECT_LE(count, bf.k);
 }
 
-// ── False Positive Rate ───────────────────────────────────────────────────────
+// ── 假阳性率 ──────────────────────────────────────────────────────────────────
 
-// Inserts n items then counts false positives from a disjoint probe set.
-// With generous parameters (m=10*n, k=3) the FPR should be well under 5%.
+// 插入 n 个元素后，从不相交的探测集统计假阳性数量。
+// 在宽裕的参数下（m=10*n, k=3），假阳性率应远低于 5%。
 TEST(BloomFilterFPR, LowFalsePositiveRateWithGenerousParams) {
     const int n = 100;
     BloomFilter<int> bf(10 * n, 3);
-    // Insert keys 0..n-1
+    // 插入键 0..n-1
     for (int i = 0; i < n; i++) BloomFilterInsertKey(bf, i);
-    // Probe keys n..2n-1 (disjoint)
+    // 探测键 n..2n-1（不相交）
     int false_positives = 0;
     for (int i = n; i < 2 * n; i++) {
         if (BloomFilterLookup(bf, i)) false_positives++;
@@ -114,11 +114,11 @@ TEST(BloomFilterFPR, LowFalsePositiveRateWithGenerousParams) {
     EXPECT_LT(fpr, 0.05) << "FPR=" << fpr << " should be under 5% with m=10n, k=3";
 }
 
-// Theoretical FPR formula: with m=1000, n=100, k=3 → ~1.7% (see book Table 13-1)
+// 理论假阳性率公式：m=1000, n=100, k=3 → ~1.7%（见书中表 13-1）
 TEST(BloomFilterFPR, TheoreticalFPRIsReasonable) {
     double fpr = BloomFilterFalsePositiveRate(100, 1000, 3);
     EXPECT_GT(fpr, 0.0);
-    EXPECT_LT(fpr, 0.05);   // Book Table 13-1: ~0.017 for m=1000, k=3, n=100
+    EXPECT_LT(fpr, 0.05);   // 书中表 13-1：m=1000, k=3, n=100 时约为 0.017
 }
 
 TEST(BloomFilterFPR, LargerFilterHasLowerFPR) {
@@ -133,7 +133,7 @@ TEST(BloomFilterFPR, MoreItemsIncreaseFPR) {
     EXPECT_LT(fpr_few, fpr_many) << "More inserted items → higher FPR";
 }
 
-// ── Different Parameter Combinations ─────────────────────────────────────────
+// ── 不同参数组合 ──────────────────────────────────────────────────────────────
 
 TEST(BloomFilterParams, K1WorksCorrectly) {
     BloomFilter<int> bf(500, 1);
@@ -147,10 +147,10 @@ TEST(BloomFilterParams, K7WorksCorrectly) {
     for (int i = 0; i < 50; i++) EXPECT_TRUE(BloomFilterLookup(bf, i));
 }
 
-// ── Custom Hash Functions ─────────────────────────────────────────────────────
+// ── 自定义哈希函数 ────────────────────────────────────────────────────────────
 
 TEST(BloomFilterCustomHash, CustomHashFunctions) {
-    // Two simple modular hash functions for int keys
+    // 两个简单的对整数键取模的哈希函数
     int m = 100;
     std::vector<std::function<size_t(const int&)>> fns = {
         [m](const int& k) -> size_t { return static_cast<size_t>((k * 2654435761ULL) % m); },
@@ -163,13 +163,13 @@ TEST(BloomFilterCustomHash, CustomHashFunctions) {
     EXPECT_TRUE(BloomFilterLookup(bf, 7));
 }
 
-// ── Idempotent insertions ─────────────────────────────────────────────────────
+// ── 幂等插入 ──────────────────────────────────────────────────────────────────
 
 TEST(BloomFilterInsert, InsertSameKeyMultipleTimes) {
     BloomFilter<std::string> bf(256, 3);
     for (int i = 0; i < 10; i++) BloomFilterInsertKey(bf, std::string("duplicate"));
     EXPECT_TRUE(BloomFilterLookup(bf, std::string("duplicate")));
-    // Bin count shouldn't grow after the first insert
+    // 第一次插入后槽位计数不应增长
     int count_after_1 = 0;
     BloomFilter<std::string> bf2(256, 3);
     BloomFilterInsertKey(bf2, std::string("duplicate"));
@@ -179,12 +179,12 @@ TEST(BloomFilterInsert, InsertSameKeyMultipleTimes) {
     EXPECT_EQ(count_after_1, count_after_n);
 }
 
-// ── Lookup Early Exit ─────────────────────────────────────────────────────────
+// ── 查找提前退出 ──────────────────────────────────────────────────────────────
 
-// (Behavioral: just verify correct result — early-exit is an internal optimization)
+// （行为测试：仅验证正确结果 ── 提前退出是内部优化）
 TEST(BloomFilterLookup, EarlyExitOnZeroBin) {
     BloomFilter<int> bf(1000, 5);
-    // Do not insert anything — first 0 bin encountered should return false
+    // 不插入任何元素 ── 遇到第一个为 0 的槽位应返回 false
     EXPECT_FALSE(BloomFilterLookup(bf, 12345));
 }
 

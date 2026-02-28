@@ -2,12 +2,12 @@
 #include <optional>
 #include "Heap/Heap.hpp"
 
-// ─── Max Heap operations ────────────────────────────────────────────────────
+// ─── 最大堆操作 ─────────────────────────────────────────────────────────────
 //
-// HeapInsert - add a value and restore the max-heap property by bubbling up.
-// HeapRemoveMax - remove and return the max element, restore heap property by
-//                 bubbling the promoted last element down.
-// UpdateMaxValue - update the value at a given 1-based index and fix the heap.
+// HeapInsert — 插入一个值，并通过上浮恢复最大堆性质。
+// HeapRemoveMax — 移除并返回最大元素，通过将提升的最后一个元素
+//                 下沉来恢复堆性质。
+// UpdateMaxValue — 更新给定 1 索引位置的值并修复堆。
 
 template<typename T>
 void HeapInsert(Heap<T>& heap, const T& value);
@@ -18,7 +18,7 @@ std::optional<T> HeapRemoveMax(Heap<T>& heap);
 template<typename T>
 void UpdateMaxValue(Heap<T>& heap, int index, const T& value);
 
-// Convenience helpers
+// 便捷辅助函数
 template<typename T>
 bool IsEmpty(const Heap<T>& heap) { return heap.last_index == 0; }
 

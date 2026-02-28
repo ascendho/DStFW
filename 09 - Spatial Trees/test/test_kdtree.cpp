@@ -3,7 +3,7 @@
 #include <functional>
 #include "KDTree/KDTree.hpp"
 
-// ─── ComputeBoundingBox ───────────────────────────────────────────────────────
+// ─── 计算边界框 ──────────────────────────────────────────────────────────────
 TEST(ComputeBoundingBoxTest, BasicTwoPoints) {
     std::vector<std::vector<float>> pts = {{1.0f,2.0f},{4.0f,0.5f}};
     auto [L, H] = ComputeBoundingBox(pts);
@@ -32,7 +32,7 @@ TEST(ComputeBoundingBoxTest, ThreeDimensions) {
     EXPECT_FLOAT_EQ(L[2], 1.0f); EXPECT_FLOAT_EQ(H[2], 4.0f);
 }
 
-// ─── KDTree Build ─────────────────────────────────────────────────────────────
+// ─── KD 树构建 ──────────────────────────────────────────────────────────────
 TEST(KDTreeBuildTest, BuildEmpty) {
     KDTree tree(2);
     EXPECT_TRUE(BuildKDTree(tree, {}));
@@ -62,7 +62,7 @@ TEST(KDTreeBuildTest, WrongDimensionalityRejected) {
     EXPECT_FALSE(BuildKDTree(tree, {{1.0f, 2.0f, 3.0f}}));
 }
 
-// ─── KDTree Insert ────────────────────────────────────────────────────────────
+// ─── KD 树插入 ──────────────────────────────────────────────────────────────
 TEST(KDTreeInsertTest, InsertIntoEmpty) {
     KDTree tree(2);
     EXPECT_TRUE(KDTreeInsert(tree, {3.0f, 3.0f}));
@@ -83,7 +83,7 @@ TEST(KDTreeInsertTest, WrongDimensionRejected) {
     EXPECT_FALSE(KDTreeInsert(tree, {1.0f, 2.0f, 3.0f}));
 }
 
-// ─── KDTree Delete ────────────────────────────────────────────────────────────
+// ─── KD 树删除 ──────────────────────────────────────────────────────────────
 TEST(KDTreeDeleteTest, DeleteExistingPoint) {
     KDTree tree(2);
     BuildKDTree(tree, {{1.0f,1.0f},{5.0f,5.0f},{3.0f,3.0f}});
@@ -110,22 +110,22 @@ TEST(KDTreeDeleteTest, DeleteAllPoints) {
     EXPECT_EQ(tree.root->num_points, 0);
 }
 
-// ─── KDTreeNodeMinDist ────────────────────────────────────────────────────────
+// ─── KD 树节点最小距离 ──────────────────────────────────────────────────────
 TEST(KDTreeMinDistTest, PointInsideBBox) {
     KDTree tree(2);
     BuildKDTree(tree, {{1.0f,1.0f},{5.0f,5.0f}});
-    // (3,3) is inside bbox [1,5]x[1,5] → dist = 0
+    // (3,3) 在边界框 [1,5]x[1,5] 内 → 距离 = 0
     EXPECT_FLOAT_EQ(KDTreeNodeMinDist(tree.root, {3.0f, 3.0f}), 0.0f);
 }
 
 TEST(KDTreeMinDistTest, PointOutsideBBox) {
     KDTree tree(2);
     BuildKDTree(tree, {{1.0f,1.0f},{3.0f,3.0f}});
-    // bbox is [1,3]x[1,3]; point (0,2) → x_dist=1, y_dist=0 → dist=1
+    // 边界框为 [1,3]x[1,3]；点 (0,2) → x_dist=1, y_dist=0 → 距离=1
     EXPECT_FLOAT_EQ(KDTreeNodeMinDist(tree.root, {0.0f, 2.0f}), 1.0f);
 }
 
-// ─── KDTree Nearest-Neighbor ──────────────────────────────────────────────────
+// ─── KD 树最近邻 ──────────────────────────────────────────────────────────────
 TEST(KDTreeNNTest, EmptyTreeReturnsNull) {
     KDTree tree(2);
     EXPECT_EQ(KDTreeNearestNeighbor(tree, {4.0f, 4.0f}), nullptr);
@@ -156,7 +156,7 @@ TEST(KDTreeNNTest, ThreeDimensional) {
         {5.0f, 5.0f, 5.0f},
         {2.0f, 2.0f, 2.0f}
     });
-    // Closest to (2.1, 2.1, 2.1) should be (2,2,2)
+    // 距离 (2.1, 2.1, 2.1) 最近的应该是 (2,2,2)
     auto* nn = KDTreeNearestNeighbor(tree, {2.1f, 2.1f, 2.1f});
     ASSERT_NE(nn, nullptr);
     EXPECT_FLOAT_EQ((*nn)[0], 2.0f);
@@ -173,7 +173,7 @@ TEST(KDTreeNNTest, NNCorrectOnManyPoints) {
     };
     BuildKDTree(tree, pts);
 
-    // Brute-force check for several query points
+    // 对多个查询点进行暴力验证
     auto brute = [&](float qx, float qy) -> std::vector<float> {
         float best = std::numeric_limits<float>::infinity();
         std::vector<float> result;

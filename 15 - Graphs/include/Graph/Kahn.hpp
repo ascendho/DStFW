@@ -4,11 +4,10 @@
 #include <vector>
 #include <stack>
 
-// ── Kahn's Algorithm — Topological Sort ──────────────────────────────────────
-// Works on directed acyclic graphs (DAGs).
-// Returns a list of node indices in topological order.
-// If the graph contains a cycle, the returned list will be shorter than
-// num_nodes.
+// ── Kahn 算法——拓扑排序 ──────────────────────────────────────────────────────
+// 适用于有向无环图（DAG）。
+// 返回按拓扑顺序排列的节点索引列表。
+// 若图中包含环，返回的列表长度将小于 num_nodes。
 //
 // ❶ Create sorted[], count[], and a stack next.
 // ❷ Count incoming edges for every node.
@@ -24,27 +23,27 @@ inline std::vector<int> Kahns(const Graph& G) {
     std::vector<int> count(G.num_nodes, 0);
     std::stack<int> next;
 
-    // ❷ Count incoming edges
+    // ❷ 统计入度
     for (const Node& node : G.nodes) {
         for (const Edge& edge : node.edges) {
             count[edge.to_node]++;
         }
     }
 
-    // ❸ Seed with zero-incoming-edge nodes
+    // ❸ 将入度为零的节点入栈
     for (const Node& node : G.nodes) {
         if (count[node.id] == 0) {
             next.push(node.id);
         }
     }
 
-    // ❹ Process
+    // ❹ 处理
     while (!next.empty()) {
         int cur_id = next.top();
         next.pop();
         sorted.push_back(cur_id);
 
-        // ❺ Remove outgoing edges
+        // ❺ 移除出边
         for (const Edge& edge : G.nodes[cur_id].edges) {
             count[edge.to_node]--;
             // ❻

@@ -8,7 +8,7 @@
 template<typename T>
 void Push(StackArray<T>& s, const T& value) {
     if (s.top == s.array_size - 1) {
-        // Array doubling: allocate a new array of twice the size
+        // 数组倍增：分配两倍大小的新数组
         int new_size = s.array_size * 2;
         s.array.resize(static_cast<std::size_t>(new_size));
         s.array_size = new_size;

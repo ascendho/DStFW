@@ -4,7 +4,7 @@
 #include "Binary Search/BinarySearch.hpp"
 
 TEST(BinarySearchTest, FindsElement) {
-    std::vector<int> v{1, 2, 5, 5, 6, 9}; // Must be sorted
+    std::vector<int> v{1, 2, 5, 5, 6, 9}; // 必须有序
     int index = BinarySearch(v, 9);
     EXPECT_EQ(index, 5);
 }
@@ -22,7 +22,7 @@ TEST(BinarySearchTest, HandlesEmpty) {
 }
 
 TEST(BinarySearchTest, FindsOneOfDuplicates) {
-    // Binary search doesn't guarantee *which* duplicate it finds, just that it finds one.
+    // 二分查找不保证找到哪个重复元素，只保证能找到一个。
     std::vector<int> v{1, 2, 5, 5, 6, 9};
     int index = BinarySearch(v, 5);
     EXPECT_TRUE(index == 2 || index == 3);

@@ -1,9 +1,9 @@
 #pragma once
 
-// DoublyLinkedListNode - Chapter 3: Dynamic Data Structures
-// A doubly linked list node with both forward and backward pointers.
+// DoublyLinkedListNode — 第三章：动态数据结构
+// 双链表节点，包含前向和后向指针。
 //
-// Pseudocode:
+// 伪代码：
 //   DoublyLinkedListNode {
 //       Type: Value
 //       DoublyLinkedListNode: next

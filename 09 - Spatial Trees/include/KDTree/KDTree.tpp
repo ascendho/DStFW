@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <limits>
 
-// ─── KDTreeNode constructor/destructor ────────────────────────────────────────
+// ─── KDTreeNode 构造函数/析构函数 ────────────────────────────────────────────
 inline KDTreeNode::KDTreeNode()
     : is_leaf(true), num_dimensions(0), num_points(0),
       split_dim(-1), split_val(0.0f),
@@ -17,7 +17,7 @@ inline KDTreeNode::~KDTreeNode() {
     delete right;
 }
 
-// ─── KDTree constructor/destructor ───────────────────────────────────────────
+// ─── KDTree 构造函数/析构函数 ─────────────────────────────────────────────────
 inline KDTree::KDTree(int num_dims)
     : num_dimensions(num_dims), root(nullptr)
 {}
@@ -66,15 +66,15 @@ inline float KDTreeNodeMinDist(const KDTreeNode* node,
 // ❺ return (L, H)
 inline std::pair<std::vector<float>, std::vector<float>>
 ComputeBoundingBox(const std::vector<std::vector<float>>& pts) {
-    // ❶ Validate input
+    // ❶ 验证输入
     int num_points = static_cast<int>(pts.size());
     if (num_points == 0) throw std::invalid_argument("ComputeBoundingBox: empty pts");
     int num_dims = static_cast<int>(pts[0].size());
 
-    // ❷ Create bound arrays
+    // ❷ 创建边界数组
     std::vector<float> L(num_dims), H(num_dims);
 
-    // ❸ Seed with first point
+    // ❸ 用第一个点初始化
     int d = 0;
     while (d < num_dims) {
         L[d] = pts[0][d];
@@ -82,7 +82,7 @@ ComputeBoundingBox(const std::vector<std::vector<float>>& pts) {
         d++;
     }
 
-    // ❹ Expand bounds with remaining points
+    // ❹ 用剩余点扩展边界
     int i = 1;
     while (i < num_points) {
         d = 0;
@@ -94,7 +94,7 @@ ComputeBoundingBox(const std::vector<std::vector<float>>& pts) {
         i++;
     }
 
-    // ❺ Return bounds
+    // ❺ 返回边界
     return {L, H};
 }
 
@@ -109,7 +109,7 @@ ComputeBoundingBox(const std::vector<std::vector<float>>& pts) {
 // ❼ Recursively build children
 inline void RecursiveBuildKDTree(KDTreeNode* node, int num_dims,
                                   std::vector<std::vector<float>> pts) {
-    // ❶ Bookkeeping
+    // ❶ 簿记信息
     node->num_points     = static_cast<int>(pts.size());
     node->num_dimensions = num_dims;
     node->left           = nullptr;
@@ -121,12 +121,12 @@ inline void RecursiveBuildKDTree(KDTreeNode* node, int num_dims,
 
     if (pts.empty()) return;
 
-    // ❷ Compute tight bounding box
+    // ❷ 计算紧密边界框
     auto [L, H] = ComputeBoundingBox(pts);
     node->x_min = L;
     node->x_max = H;
 
-    // ❸ Find widest dimension
+    // ❸ 查找最宽维度
     float max_width = 0.0f;
     int   split_dim = 0;
     int   d = 0;
@@ -139,19 +139,19 @@ inline void RecursiveBuildKDTree(KDTreeNode* node, int num_dims,
         d++;
     }
 
-    // ❹ Leaf conditions: too few points or too narrow
+    // ❹ 叶节点条件：点太少或区间太窄
     if (node->num_points <= KD_MAX_LEAF_POINTS || max_width <= KD_MIN_WIDTH) {
         for (const auto& pt : pts)
             node->points.push_back(pt);
         return;
     }
 
-    // ❺ Choose split: widest dimension, midpoint value
+    // ❺ 选择分割：最宽维度，中点值
     node->split_dim = split_dim;
     node->split_val = (node->x_min[split_dim] + node->x_max[split_dim]) / 2.0f;
     node->is_leaf   = false;
 
-    // ❻ Partition points
+    // ❻ 划分点集
     std::vector<std::vector<float>> left_pts, right_pts;
     for (const auto& pt : pts) {
         if (pt[node->split_dim] <= node->split_val)
@@ -160,7 +160,7 @@ inline void RecursiveBuildKDTree(KDTreeNode* node, int num_dims,
             right_pts.push_back(pt);
     }
 
-    // ❼ Recursively build children
+    // ❼ 递归构建子节点
     node->left = new KDTreeNode();
     RecursiveBuildKDTree(node->left, num_dims, left_pts);
     node->right = new KDTreeNode();
@@ -199,9 +199,9 @@ inline bool KDTreeInsert(KDTree& tree, const std::vector<float>& pt) {
 }
 
 // ─── KDTreeNodeInsert ──────────────────────────────────────────────────────────
-// Insertion: follow split_dim/split_val; update bounding box; split leaf if needed
+// 插入：沿 split_dim/split_val 递归；更新边界框；满足条件时分割叶节点
 inline void KDTreeNodeInsert(KDTreeNode* node, const std::vector<float>& pt) {
-    // Update bounding box
+    // 更新边界框
     if (node->x_min.empty()) {
         node->x_min = pt;
         node->x_max = pt;
@@ -216,11 +216,11 @@ inline void KDTreeNodeInsert(KDTreeNode* node, const std::vector<float>& pt) {
     }
     node->num_points++;
 
-    // Leaf: add point, then split if conditions met
+    // 叶节点：添加点，满足条件则分割
     if (node->is_leaf) {
         node->points.push_back(pt);
 
-        // Check split conditions
+        // 检查分割条件
         float max_width = 0.0f;
         int split_dim = 0;
         for (int d2 = 0; d2 < node->num_dimensions; ++d2) {
@@ -230,7 +230,7 @@ inline void KDTreeNodeInsert(KDTreeNode* node, const std::vector<float>& pt) {
 
         if (static_cast<int>(node->points.size()) > KD_MAX_LEAF_POINTS
             && max_width > KD_MIN_WIDTH) {
-            // Re-build this subtree from its current points
+            // 从当前点重建此子树
             std::vector<std::vector<float>> old_pts = node->points;
             node->points.clear();
             node->is_leaf   = false;
@@ -253,7 +253,7 @@ inline void KDTreeNodeInsert(KDTreeNode* node, const std::vector<float>& pt) {
         return;
     }
 
-    // Internal: recurse
+    // 内部节点：递归
     if (pt[node->split_dim] <= node->split_val) {
         if (node->left == nullptr) {
             node->left = new KDTreeNode();
@@ -281,7 +281,7 @@ inline bool KDTreeDelete(KDTree& tree, const std::vector<float>& pt) {
 }
 
 // ─── KDTreeNodeDelete ──────────────────────────────────────────────────────────
-// Deletion: find via split_dim/split_val, remove from leaf, update bbox, collapse
+// 删除：沿 split_dim/split_val 查找，从叶节点移除，更新边界框，合并
 inline bool KDTreeNodeDelete(KDTreeNode* node, const std::vector<float>& pt) {
     if (node->is_leaf) {
         for (int i = 0; i < static_cast<int>(node->points.size()); ++i) {
@@ -292,7 +292,7 @@ inline bool KDTreeNodeDelete(KDTreeNode* node, const std::vector<float>& pt) {
             if (match) {
                 node->points.erase(node->points.begin() + i);
                 node->num_points--;
-                // Recompute tight bounding box
+                // 重新计算紧密边界框
                 if (!node->points.empty()) {
                     auto [L, H] = ComputeBoundingBox(node->points);
                     node->x_min = L;
@@ -304,7 +304,7 @@ inline bool KDTreeNodeDelete(KDTreeNode* node, const std::vector<float>& pt) {
         return false;
     }
 
-    // Internal: decide which child to descend into
+    // 内部节点：决定进入哪个子节点
     bool found = false;
     if (pt[node->split_dim] <= node->split_val && node->left != nullptr) {
         found = KDTreeNodeDelete(node->left, pt);
@@ -316,7 +316,7 @@ inline bool KDTreeNodeDelete(KDTreeNode* node, const std::vector<float>& pt) {
     if (found) {
         node->num_points--;
 
-        // Collapse if one or both children are empty
+        // 如果一个或两个子节点为空则合并
         bool left_empty  = (node->left  == nullptr || node->left->num_points  == 0);
         bool right_empty = (node->right == nullptr || node->right->num_points == 0);
 
@@ -326,7 +326,7 @@ inline bool KDTreeNodeDelete(KDTreeNode* node, const std::vector<float>& pt) {
             node->is_leaf = true;
             node->points.clear();
         } else if (node->num_points <= KD_MAX_LEAF_POINTS) {
-            // Collect all remaining points and collapse to leaf
+            // 收集所有剩余点并合并为叶节点
             std::vector<std::vector<float>> all;
             std::function<void(KDTreeNode*)> collect = [&](KDTreeNode* n) {
                 if (n == nullptr) return;
@@ -349,7 +349,7 @@ inline bool KDTreeNodeDelete(KDTreeNode* node, const std::vector<float>& pt) {
                 node->x_max = H;
             }
         } else {
-            // Tighten bounding box from children
+            // 从子节点收紧边界框
             if (node->left  && !node->left->x_min.empty())
                 for (int d = 0; d < node->num_dimensions; ++d) {
                     node->x_min[d] = std::min(node->x_min[d], node->left->x_min[d]);
@@ -386,7 +386,7 @@ inline std::vector<float>* KDTreeNodeNearestNeighbor(KDTreeNode* node,
                                                        float& best_dist) {
     if (node == nullptr) return nullptr;
 
-    // Prune node if its entire region is farther than best_dist
+    // 如果整个区域比当前最优距离更远则剪枝
     if (KDTreeNodeMinDist(node, pt) >= best_dist) return nullptr;
 
     std::vector<float>* best_candidate = nullptr;
@@ -402,7 +402,7 @@ inline std::vector<float>* KDTreeNodeNearestNeighbor(KDTreeNode* node,
         return best_candidate;
     }
 
-    // Determine which child is closer to pt along split_dim
+    // 确定沿分割维度哪个子节点更接近目标点
     KDTreeNode* first  = nullptr;
     KDTreeNode* second = nullptr;
     if (node->left != nullptr || node->right != nullptr) {
@@ -415,7 +415,7 @@ inline std::vector<float>* KDTreeNodeNearestNeighbor(KDTreeNode* node,
         }
     }
 
-    // Search closer child first, then the other
+    // 先搜索较近的子节点，然后搜索另一个
     auto* res1 = KDTreeNodeNearestNeighbor(first, pt, best_dist);
     if (res1) best_candidate = res1;
 

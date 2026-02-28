@@ -9,7 +9,7 @@ static bool ApproxEq(float a, float b, float eps = 1e-4f) {
     return std::fabs(a - b) < eps;
 }
 
-// ── Build the book's graph (same as Dijkstra tests) ─────────────────────────
+// ── 构建书中的图（与 Dijkstra 测试相同）──────────────────────────────────────
 static Graph BookGraph() {
     Graph G(8);
     G.SetName(0, "A"); G.SetName(1, "B"); G.SetName(2, "C");
@@ -28,7 +28,7 @@ static Graph BookGraph() {
     return G;
 }
 
-// ── Tests ────────────────────────────────────────────────────────────────────
+// ── 测试 ─────────────────────────────────────────────────────────────────────
 
 TEST(Prim, SingleNode) {
     Graph G(1);
@@ -46,7 +46,7 @@ TEST(Prim, TwoNodes) {
 }
 
 TEST(Prim, Triangle) {
-    // 0-1: 1, 1-2: 2, 0-2: 3   => MST picks edges 0-1(1) and 1-2(2) = 3
+    // 0-1: 1, 1-2: 2, 0-2: 3 => 最小生成树选择边 0-1(1) 和 1-2(2) = 3
     Graph G(3);
     G.AddUndirectedEdge(0, 1, 1.0f);
     G.AddUndirectedEdge(1, 2, 2.0f);
@@ -60,15 +60,15 @@ TEST(Prim, BookGraphMSTWeight) {
     Graph G = BookGraph();
     auto res = Prims(G);
 
-    // MST should have 7 edges for 8 nodes
+    // 最小生成树应有 7 条边（8 个节点）
     EXPECT_EQ(res.mst_edges.size(), 7u);
 
-    // MST edges (by weight):  D-F:0.3  D-E:0.4  A-C:0.5  A-D:0.5
-    //                          C-E:0.5 or A-B? ... Let's compute expected weight.
-    // Optimal MST: D-F(0.3) + D-E(0.4) + A-C(0.5) + A-D(0.5) + C-E(0.5)→skip if already connected
-    // Kruskal ordering: 0.3(D-F) 0.4(D-E) 0.5(A-C) 0.5(A-D) 0.5(C-E)→skip 0.9(F-H) 1.1(B-F) 1.5(A-B)→skip 2.5(C-G)
-    // {D,F} {D,E,F} {A,C,D,E,F} (A-D connects) {A,C,D,E,F} + F-H: {A,C,D,E,F,H}
-    // + B-F: {A,B,C,D,E,F,H} + C-G: all connected
+    // 最小生成树边（按权重）：D-F:0.3  D-E:0.4  A-C:0.5  A-D:0.5
+    //                           C-E:0.5 还是 A-B？……计算预期权重。
+    // 最优最小生成树：D-F(0.3) + D-E(0.4) + A-C(0.5) + A-D(0.5) + C-E(0.5)→已连通则跳过
+    // Kruskal 排序：0.3(D-F) 0.4(D-E) 0.5(A-C) 0.5(A-D) 0.5(C-E)→跳过 0.9(F-H) 1.1(B-F) 1.5(A-B)→跳过 2.5(C-G)
+    // {D,F} {D,E,F} {A,C,D,E,F}（A-D 连通）{A,C,D,E,F} + F-H: {A,C,D,E,F,H}
+    // + B-F: {A,B,C,D,E,F,H} + C-G: 全部连通
     // Total = 0.3 + 0.4 + 0.5 + 0.5 + 0.9 + 1.1 + 2.5 = 6.2
     EXPECT_TRUE(ApproxEq(res.total_weight, 6.2f));
 }
@@ -77,13 +77,13 @@ TEST(Prim, BookGraphMSTEdges) {
     Graph G = BookGraph();
     auto res = Prims(G);
 
-    // Collect MST edges as undirected pairs {min, max}
+    // 将最小生成树的边收集为无向边对 {min, max}
     std::set<std::pair<int, int>> edges;
     for (auto [a, b] : res.mst_edges) {
         edges.insert({std::min(a, b), std::max(a, b)});
     }
 
-    // Expected MST edges (see weight calculation above):
+    // 预期的最小生成树边（参见上方权重计算）：
     // {0,2}=A-C  {0,3}=A-D  {3,5}=D-F  {3,4}=D-E  {5,7}=F-H  {1,5}=B-F  {2,6}=C-G
     EXPECT_TRUE(edges.count({0, 2}));  // A-C 0.5
     EXPECT_TRUE(edges.count({0, 3}));  // A-D 0.5
@@ -95,12 +95,12 @@ TEST(Prim, BookGraphMSTEdges) {
 }
 
 TEST(Prim, DisconnectedPartial) {
-    // Two components: {0,1} and {2,3}
+    // 两个连通分量：{0,1} 和 {2,3}
     Graph G(4);
     G.AddUndirectedEdge(0, 1, 1.0f);
     G.AddUndirectedEdge(2, 3, 2.0f);
     auto res = Prims(G);
-    // Prim starting from 0 will only span {0,1}
+    // Prim 从节点 0 开始只能覆盖 {0,1}
     EXPECT_EQ(res.mst_edges.size(), 1u);
     EXPECT_TRUE(ApproxEq(res.total_weight, 1.0f));
 }

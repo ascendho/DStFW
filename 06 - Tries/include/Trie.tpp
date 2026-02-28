@@ -89,7 +89,7 @@ bool Trie::TrieNodeDelete(TrieNode* current, const std::string& target, int inde
         }
     }
     
-    // Do not delete this node if it has either an entry or a child.
+    // 如果该节点是词条或有子节点，则不删除。
     // ❹ IF current.is_entry:
     if (current->is_entry) {
         return false;
